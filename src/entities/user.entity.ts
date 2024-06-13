@@ -24,6 +24,4 @@ export class UserEntity implements User {
   @Exclude()
   updatedAt: Date;
 
-  @Exclude()
-  password: string;
 }

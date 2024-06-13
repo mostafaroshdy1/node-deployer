@@ -29,14 +29,10 @@ export class UserService {
     if (foundUser) {
       throw new BadRequestException('Email already exists');
     }
-    const { password } = data;
-    data.password = await this.hashPassword(password);
     return this.userRepository.create(data);
   }
 
   async update(id: string, data: UpdateUserDto): Promise<User | null> {
-    const { password } = data;
-    if (password) data.password = await this.hashPassword(password);
     return this.userRepository.update(id, data);
   }
 
@@ -44,8 +40,4 @@ export class UserService {
     return this.userRepository.remove(id);
   }
 
-  async hashPassword(password: string): Promise<string> {
-    const salt = parseInt(process.env.BCRYPT_SALT);
-    return bcrypt.hash(password, salt);
-  }
 }
