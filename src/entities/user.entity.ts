@@ -4,16 +4,25 @@ import { Exclude } from 'class-transformer';
 
 export class UserEntity implements User {
   @ApiProperty()
+  provider: string;
+
+  @ApiProperty()
+  providerId: string;
+
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  username : string;
 
   @ApiProperty()
   email: string;
 
   @ApiProperty()
-  firstName: string;
+  name: string;
 
-  @ApiProperty()
-  lastName: string;
+  @Exclude()
+  repos: any[];
 
   @Exclude()
   role: Role;

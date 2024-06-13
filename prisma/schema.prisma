@@ -18,16 +18,13 @@ enum Role {
   ADMIN
 }
 
-enum Provider {
-  GITHUB
-}
 
 model User {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   email      String   @unique
-  firstName  String
-  lastName   String
-  provider   Provider
+  name       String
+  username   String
+  provider   String
   providerId String
   repos      Repo[]
   role       Role     @default(USER)
