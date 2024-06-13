@@ -1,18 +1,25 @@
-import { Controller, Get, Req, Res, UseGuards, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  Res,
+  Param,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
-import { DynamicAuthGuard } from '../guards/dynamic-auth.guard';
+import { DynamicAuthInterceptor } from '../common/interceptors/dynamic-auth.interceptor';
 
 @Controller('auth')
 export class AuthController {
   @Get(':provider')
-  @UseGuards(DynamicAuthGuard)
+  @UseInterceptors(DynamicAuthInterceptor)
   async auth(@Req() req: Request) {
     console.log(req.user); // null (if not logged in)
     // Initiates OAuth login
   }
 
   @Get(':provider/callback')
-  @UseGuards(DynamicAuthGuard)
+  @UseInterceptors(DynamicAuthInterceptor)
   async authRedirect(
     @Req() req: Request,
     @Res() res: Response,
@@ -20,9 +27,8 @@ export class AuthController {
   ) {
     // Handles OAuth callback
     console.log(provider);
-    const user = req.user;
-    console.log(user); // User data
-    // Redirect or respond with user data
+
+    console.log(req.user); // User data
     res.redirect('/'); // Or handle accordingly
   }
 }
