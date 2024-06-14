@@ -1,11 +1,11 @@
 import { User } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { UserRepositoryInterface } from '../interfaces/user.repository.interface';
+import { IUserRepository } from 'src/interfaces/user-repository.interface';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
-export class UserRepository implements UserRepositoryInterface {
+export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(): Promise<User[]> {

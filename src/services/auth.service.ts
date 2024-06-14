@@ -18,7 +18,14 @@ export class AuthService {
       email: emails ? emails[0].value : null,
     };
 
-    const newUser = await this.userService.create(user)
+    let newUser = await this.userService.findByEmail(user.email);
+
+    if(newUser)
+      console.log("User Exists!", newUser);
+    else{
+      newUser = await this.userService.create(user);
+      console.log("User Created!", newUser);
+    }
     return newUser;
   }
 }
