@@ -1,18 +1,22 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
-import { GithubStrategy } from '../strategies/github.strategy'
-// import { UserService } from 'src/services/user.service';
-// import { UserRepository } from 'src/repositories/user.repository';
+import { GithubStrategy } from '../strategies/github.strategy';
 import { UserModule } from './user.module';
 import { PrismaService } from 'src/prisma.service';
-
+import { JwtModule } from '@nestjs/jwt';
+import { AuthController } from 'src/controllers/auth.controller';
 
 @Module({
-  imports: [UserModule,PassportModule.register({ defaultStrategy: 'github' })],
-  providers: [AuthService, GithubStrategy, PrismaService,
-    // UserService, // Error if uncommented
-    // UserRepository,
+  imports: [
+    UserModule,
+    PassportModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+    }),
   ],
+  controllers: [AuthController],
+  providers: [AuthService, GithubStrategy],
 })
 export class AuthModule {}

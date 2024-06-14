@@ -2,8 +2,6 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-import { UserRepository } from 'src/repositories/user.repository';
 import { IUserRepository } from 'src/interfaces/user-repository.interface';
 
 @Injectable()
@@ -34,11 +32,12 @@ export class UserService {
   }
 
   async update(id: string, data: UpdateUserDto): Promise<User | null> {
-    return this.userRepository.update(id, data);
+    const foundUser = await this.findById(id);
+    delete foundUser.id;
+    return this.userRepository.update(id, { ...foundUser, ...data });
   }
 
   async remove(id: string): Promise<User> {
     return this.userRepository.remove(id);
   }
-
 }

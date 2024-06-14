@@ -1,31 +1,57 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-// import { Profile } from '../interfaces/profile.auth.interface';
 import { UserService } from './user.service';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { Profile } from 'passport';
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService : UserService){}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async validateUser(profile: Profile): Promise<User | null> {
-    const { id, username, displayName, emails , provider} = profile;
-    const  user : CreateUserDto = {
-      provider : provider,
+  async validateUser(
+    profile: Profile,
+    accessToken: string,
+  ): Promise<User | null> {
+    const { id, username, displayName, emails, provider } = profile;
+
+    const email: string = emails[0].value;
+    const foundUser = await this.userService.findByEmail(email);
+
+    if (foundUser) {
+      // console.log('User Exists!', foundUser);
+      foundUser.accessToken = accessToken;
+      return await this.userService.update(foundUser.id, { accessToken });
+    }
+    const user: CreateUserDto = {
+      provider: provider,
       providerId: id,
       username: username,
       name: displayName,
-      email: emails ? emails[0].value : null,
+      email: emails[0].value,
+      accessToken: accessToken,
     };
-
-    let newUser = await this.userService.findByEmail(user.email);
-
-    if(newUser)
-      console.log("User Exists!", newUser);
-    else{
-      newUser = await this.userService.create(user);
-      console.log("User Created!", newUser);
-    }
+    const newUser = await this.userService.create(user);
     return newUser;
+  }
+  async createJwtTokens(
+    user: Profile,
+  ): Promise<{ access_token: string; refresh_token: string }> {
+    const payload = { id: user.id, email: user.email };
+    const [access_token, refresh_token] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }),
+      this.jwtService.signAsync(payload, {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+      }),
+    ]);
+    return {
+      access_token,
+      refresh_token,
+    };
   }
 }

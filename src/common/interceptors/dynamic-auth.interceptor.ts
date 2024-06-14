@@ -1,31 +1,23 @@
 import {
   Injectable,
   ExecutionContext,
-  NestInterceptor,
-  CallHandler,
   BadRequestException,
+  CanActivate,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { map } from 'rxjs';
-
-enum Provider {
-  GITHUB = 'github',
-}
+import { Provider } from '../enums/providers.enum';
 
 @Injectable()
-export class DynamicAuthInterceptor implements NestInterceptor {
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<any> {
+export class DynamicAuthGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const provider = request.params.provider;
+
     if (!Object.values(Provider).includes(provider)) {
       throw new BadRequestException('Invalid provider');
     }
+
     const guard = new (AuthGuard(provider))();
-    const canActivate = await guard.canActivate(context);
-    return next.handle().pipe(
-      map(() => {
-        return canActivate as boolean;
-      }),
-    );
+    return guard.canActivate(context) as boolean;
   }
 }
