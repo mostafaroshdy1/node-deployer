@@ -7,19 +7,24 @@ export class UserEntity implements User {
   provider: string;
 
   @ApiProperty()
+  @Exclude()
   providerId: string;
 
   @ApiProperty()
   id: string;
 
   @ApiProperty()
-  username : string;
+  username: string;
 
   @ApiProperty()
   email: string;
 
   @ApiProperty()
   name: string;
+
+  @ApiProperty()
+  @Exclude()
+  accessToken: string;
 
   @Exclude()
   repos: any[];
@@ -32,5 +37,4 @@ export class UserEntity implements User {
 
   @Exclude()
   updatedAt: Date;
-
 }

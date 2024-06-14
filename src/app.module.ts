@@ -6,10 +6,11 @@ import { PrismaService } from './prisma.service';
 import { AuthModule } from './modules/auth.module';
 import { AuthController } from './controllers/auth.controller';
 import { ConfigModule } from '@nestjs/config';
+import { AuthService } from './services/auth.service';
 
 @Module({
   imports: [UserModule, AuthModule, ConfigModule.forRoot({ isGlobal: true })],
   controllers: [AppController, AuthController],
-  providers: [PrismaService, AppService],
+  providers: [PrismaService, AppService, AuthService],
 })
 export class AppModule {}

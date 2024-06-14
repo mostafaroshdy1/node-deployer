@@ -4,31 +4,37 @@ import {
   Req,
   Res,
   Param,
-  UseInterceptors,
+  UseGuards,
+  Redirect,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { Request, Response } from 'express';
-import { DynamicAuthInterceptor } from '../common/interceptors/dynamic-auth.interceptor';
+import { DynamicAuthGuard } from 'src/common/interceptors/dynamic-auth.interceptor';
+import { UserEntity } from 'src/entities/user.entity';
+import { AuthService } from 'src/services/auth.service';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
   @Get(':provider')
-  @UseInterceptors(DynamicAuthInterceptor)
+  @UseGuards(DynamicAuthGuard)
   async auth(@Req() req: Request) {
-    console.log(req.user); // null (if not logged in)
-    // Initiates OAuth login
+    console.log(req.user);
   }
 
   @Get(':provider/callback')
-  @UseInterceptors(DynamicAuthInterceptor)
+  @UseGuards(DynamicAuthGuard)
   async authRedirect(
     @Req() req: Request,
     @Res() res: Response,
     @Param('provider') provider: string,
   ) {
-    // Handles OAuth callback
-    console.log(provider);
+    const tokens = await this.authService.createJwtTokens(
+      plainToInstance(UserEntity, req.user),
+    );
+    const ret = { ...tokens, callbackUrl: process.env.FE_CALLBACK_URL };
+    console.log(ret);
 
-    // console.log(req.user); // User data
-    res.redirect('/'); // Or handle accordingly
+    // Redirect('/test');
   }
 }
