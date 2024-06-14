@@ -28,7 +28,7 @@ export class AuthController {
     // Handles OAuth callback
     console.log(provider);
 
-    console.log(req.user); // User data
+    // console.log(req.user); // User data
     res.redirect('/'); // Or handle accordingly
   }
 }

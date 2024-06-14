@@ -3,13 +3,14 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { UserRepositoryInterface } from 'src/interfaces/user.repository.interface';
+import { UserRepository } from 'src/repositories/user.repository';
+import { IUserRepository } from 'src/interfaces/user-repository.interface';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('UserRepositoryInterface')
-    private readonly userRepository: UserRepositoryInterface,
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async findAll(): Promise<User[]> {
