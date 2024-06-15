@@ -23,7 +23,6 @@ export class UserEntity implements User {
   name: string;
 
   @ApiProperty()
-  @Exclude()
   accessToken: string;
 
   @Exclude()

@@ -7,6 +7,8 @@ import { UserModule } from './user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/controllers/auth.controller';
 import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
+import { GitLabRepoStrategy } from 'src/strategies/gitlab-repo.strategy';
+import { RepositoryController } from 'src/controllers/repository.controller';
 
 
 @Module({
@@ -18,8 +20,8 @@ import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
       secret: process.env.JWT_SECRET,
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, GithubStrategy, GitLabStrategy],
+  controllers: [AuthController,RepositoryController],
+  providers: [AuthService, GithubStrategy, GitLabStrategy, GitLabRepoStrategy],
 })
 export class AuthModule {}
 
