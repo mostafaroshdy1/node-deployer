@@ -7,10 +7,12 @@ import { AuthModule } from './modules/auth.module';
 import { AuthController } from './controllers/auth.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from './services/auth.service';
+import { DockerController } from './controllers/docker.controller';
+import { DockerService } from './services/docker.service';
 
 @Module({
   imports: [UserModule, AuthModule, ConfigModule.forRoot({ isGlobal: true })],
-  controllers: [AppController, AuthController],
-  providers: [PrismaService, AppService, AuthService],
+  controllers: [AppController, AuthController, DockerController],
+  providers: [PrismaService, AppService, AuthService, DockerService],
 })
 export class AppModule {}

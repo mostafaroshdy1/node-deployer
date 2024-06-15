@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -38,9 +39,9 @@ export class AuthService {
     return newUser;
   }
   async createJwtTokens(
-    user: Profile,
+    user: UserEntity,
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const payload = { id: user.id, email: user.email };
+    const payload = { user };
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: process.env.JWT_EXPIRATION,
