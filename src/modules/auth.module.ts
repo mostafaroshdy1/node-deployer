@@ -3,9 +3,11 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 import { GithubStrategy } from '../strategies/github.strategy';
 import { UserModule } from './user.module';
-import { PrismaService } from 'src/prisma.service';
+// import { PrismaService } from 'src/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/controllers/auth.controller';
+import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
+
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { AuthController } from 'src/controllers/auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GithubStrategy],
+  providers: [AuthService, GithubStrategy, GitLabStrategy],
 })
 export class AuthModule {}
+
