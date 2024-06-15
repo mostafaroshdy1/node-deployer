@@ -65,6 +65,9 @@ importers:
       passport-github2:
         specifier: ^0.1.12
         version: 0.1.12
+      passport-gitlab2:
+        specifier: ^5.0.0
+        version: 5.0.0
       passport-oauth2:
         specifier: ^1.8.0
         version: 1.8.0
@@ -2707,6 +2710,10 @@ packages:
   passport-github@1.1.0:
     resolution: {integrity: sha512-XARXJycE6fFh/dxF+Uut8OjlwbFEXgbPVj/+V+K7cvriRK7VcAOm+NgBmbiLM9Qv3SSxEAV+V6fIk89nYHXa8A==}
     engines: {node: '>= 0.4.0'}
+
+  passport-gitlab2@5.0.0:
+    resolution: {integrity: sha512-cXQMgM6JQx9wHVh7JLH30D8fplfwjsDwRz+zS0pqC8JS+4bNmc1J04NGp5g2M4yfwylH9kQRrMN98GxMw7q7cg==}
+    engines: {node: '>= 6.0.0'}
 
   passport-oauth2@1.8.0:
     resolution: {integrity: sha512-cjsQbOrXIDE4P8nNb3FQRCCmJJ/utnFKEz2NX209f7KOHPoX18gF7gBzBbLLsj2/je4KrgiwLLGjf0lm9rtTBA==}
@@ -6625,6 +6632,10 @@ snapshots:
       passport-oauth2: 1.8.0
 
   passport-github@1.1.0:
+    dependencies:
+      passport-oauth2: 1.8.0
+
+  passport-gitlab2@5.0.0:
     dependencies:
       passport-oauth2: 1.8.0
 
