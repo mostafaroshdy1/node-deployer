@@ -18,15 +18,14 @@ export class AuthService {
     accessToken: string,
   ): Promise<User | null> {
     const { id, username, displayName, emails, provider } = profile;
-
     const email: string = emails[0].value;
-    const foundUser = await this.userService.findByEmail(email);
+    const foundUser = await this.userService.findByEmailAndProvider(email, provider);
 
     if (foundUser) {
-      // console.log('User Exists!', foundUser);
       foundUser.accessToken = accessToken;
       return await this.userService.update(foundUser.id, { accessToken });
     }
+
     const user: CreateUserDto = {
       provider: provider,
       providerId: id,
@@ -35,9 +34,9 @@ export class AuthService {
       email: emails[0].value,
       accessToken: accessToken,
     };
-    const newUser = await this.userService.create(user);
-    return newUser;
+    return this.userService.create(user);
   }
+
   async createJwtTokens(
     user: UserEntity,
   ): Promise<{ access_token: string; refresh_token: string }> {

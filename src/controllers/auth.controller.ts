@@ -35,7 +35,11 @@ export class AuthController {
     const ret = { ...tokens, callbackUrl: process.env.FE_CALLBACK_URL };
     console.log(ret);
 
-    // Redirect('/test');
+    res
+			.status(302)
+			.redirect(
+				`${process.env.FRONT_END_URL}?access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}`,
+			);
   }
 
   @Get(':provider/callback/repo')

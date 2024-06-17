@@ -19,22 +19,24 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findByEmail(email);
+  async findByEmailAndProvider(email: string, provider: string): Promise<User | null> {
+    return this.userRepository.findByEmailAndProvider(email, provider);
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    const foundUser = await this.findByEmail(data.email);
+    const foundUser = await this.findByEmailAndProvider(data.email, data.provider);
     if (foundUser) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException('Email already exists for this provider');
     }
     return this.userRepository.create(data);
   }
 
   async update(id: string, data: UpdateUserDto): Promise<User | null> {
     const foundUser = await this.findById(id);
-    delete foundUser.id;
-    return this.userRepository.update(id, { ...foundUser, ...data });
+    if (!foundUser) {
+      throw new BadRequestException('User not found');
+    }
+    return this.userRepository.update(id, data);
   }
 
   async remove(id: string): Promise<User> {

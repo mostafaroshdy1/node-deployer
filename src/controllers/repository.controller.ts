@@ -12,7 +12,6 @@ export class RepositoryController {
   @UseGuards(AuthGuard('gitlab-repo'))
   async getRepositories(@Req() req: Request) {
     try {
-      // User is authenticated and repositories are fetched in GitLabRepoStrategy.validate()
       const repositories = req.user;
 
       if (Array.isArray(repositories)) {
@@ -26,12 +25,10 @@ export class RepositoryController {
         console.error('Invalid repositories data');
       }
 
-      // Return repositories as response (optional)
       return repositories;
     } catch (error) {
-      // Handle errors
       console.error('Error fetching repositories:', error);
-      throw error; // Optionally handle and throw a custom exception
+      throw error; 
     }
   }
 }
