@@ -13,7 +13,7 @@ CPU_MAX_LIMIT=$4
 IMAGE_ID=$5
 
 # Define the internal container port, assuming it should be the same as the published port.
-CONTAINER_PORT=$PUBLISHED_PORT
+CONTAINER_PORT=3000 
 
 # Create the Docker container with the specified parameters and capture the container ID
 CONTAINER_ID=$(docker run -d -p ${PUBLISHED_IP}:${PUBLISHED_PORT}:${CONTAINER_PORT} \
