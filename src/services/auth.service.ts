@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/entities/user.entity';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,10 @@ export class AuthService {
   ): Promise<User | null> {
     const { id, username, displayName, emails, provider } = profile;
     const email: string = emails[0].value;
-    const foundUser = await this.userService.findByEmailAndProvider(email, provider);
+    const foundUser = await this.userService.findByEmailAndProvider(
+      email,
+      provider,
+    );
 
     if (foundUser) {
       foundUser.accessToken = accessToken;
@@ -39,8 +43,13 @@ export class AuthService {
 
   async createJwtTokens(
     user: UserEntity,
+    scope: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const payload = { id: user.id, email: user.email };
+    const payload = {
+      id: user.id,
+      email: user.email,
+      scope: scope,
+    };
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: process.env.JWT_EXPIRATION,
@@ -53,5 +62,21 @@ export class AuthService {
       access_token,
       refresh_token,
     };
+  }
+
+  async getGitLabRepos(accessToken: string) {
+    try {
+      const response = await axios.get('https://gitlab.com/api/v4/projects', {
+        params: { owned: true },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching GitLab repositories:', error.response.data);
+      throw new InternalServerErrorException(
+        'Failed to fetch GitLab repositories: ' +
+          error.response.data.error_description,
+      );
+    }
   }
 }
