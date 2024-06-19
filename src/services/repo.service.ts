@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateRepoDto } from '../dtos/create-repo.dto';
 import { UpdateRepoDto } from '../dtos/update-repo.dto';
-import { Repo } from '@prisma/client';
+import { Prisma, Repo } from '@prisma/client';
 import { IRepoRepository } from 'src/interfaces/repo-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 
@@ -10,7 +10,7 @@ export class RepoService {
   constructor(
     @Inject('IRepoRepository')
     private readonly repoRepository: IRepoRepository,
-    private readonly dockerService: DockerService
+    private readonly dockerService: DockerService,
   ) {}
 
   async findAll(): Promise<Repo[]> {
@@ -21,7 +21,7 @@ export class RepoService {
     return this.repoRepository.findById(id);
   }
 
-  async create(data: CreateRepoDto): Promise<Repo> {
+  async create(data: Prisma.RepoCreateInput): Promise<Repo> {
     // Perform any necessary validation or business logic here
     await this.dockerService.cloneRepo(data.url);
     return this.repoRepository.create(data);

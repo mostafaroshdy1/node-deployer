@@ -47,10 +47,8 @@ model Repo {
 
 model DockerImage {
   id         String      @id @map("_id")
-  name       String
   repo       Repo        @relation(fields: [repoId], references: [id])
   repoId     String      @unique @db.ObjectId
-  size       String
   constiners Container[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -62,6 +60,8 @@ model Container {
   dockerImageId String
   name          String
   size          String
+  port          String
+  ip            String
   tier          Tier        @relation(fields: [tierId], references: [id])
   tierId        String      @db.ObjectId
   createdAt     DateTime    @default(now())

@@ -1,7 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateContainerDto } from '../dtos/create-container.dto';
 import { UpdateContainerDto } from '../dtos/update-container.dto';
-import { Container } from '@prisma/client';
+import { Container, Prisma } from '@prisma/client';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 
@@ -10,7 +9,7 @@ export class ContainerService {
   constructor(
     @Inject('IContainerRepository')
     private readonly containerRepository: IContainerRepository,
-    private readonly dockerService: DockerService
+    private readonly dockerService: DockerService,
   ) {}
 
   async findAll(): Promise<Container[]> {
@@ -21,13 +20,15 @@ export class ContainerService {
     return this.containerRepository.findById(id);
   }
 
-  async create(data: CreateContainerDto): Promise<Container> {
+  async create(data: Prisma.ContainerCreateInput): Promise<Container> {
     const container = await this.containerRepository.create(data);
-    await this.dockerService.createContainer(data.port, data.ip, data.memory, data.cpu, data.dockerImageId);
     return container;
   }
 
-  async update(id: string, data: UpdateContainerDto): Promise<Container | null> {
+  async update(
+    id: string,
+    data: Prisma.ContainerUpdateInput,
+  ): Promise<Container | null> {
     const foundContainer = await this.findById(id);
     if (!foundContainer) {
       throw new BadRequestException('Container not found');

@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateDockerImageDto } from '../dtos/create-dockerImage.dto';
 import { UpdateDockerImageDto } from '../dtos/update-dockerImage.dto';
-import { DockerImage } from '@prisma/client';
+import { DockerImage, Prisma } from '@prisma/client';
 import { IDockerImageRepository } from 'src/interfaces/dockerImage-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 
@@ -10,7 +10,7 @@ export class DockerImageService {
   constructor(
     @Inject('IDockerImageRepository')
     private readonly dockerImageRepository: IDockerImageRepository,
-    private readonly dockerService: DockerService
+    private readonly dockerService: DockerService,
   ) {}
 
   async findAll(): Promise<DockerImage[]> {
@@ -21,16 +21,22 @@ export class DockerImageService {
     return this.dockerImageRepository.findById(id);
   }
 
-  async create(data: CreateDockerImageDto): Promise<DockerImage> {
+  async create(data: Prisma.DockerImageCreateInput): Promise<DockerImage> {
     return this.dockerImageRepository.create(data);
   }
 
-  async update(id: string, data: UpdateDockerImageDto): Promise<DockerImage | null> {
+  async update(
+    id: string,
+    data: UpdateDockerImageDto,
+  ): Promise<DockerImage | null> {
     const foundDockerImage = await this.findById(id);
     if (!foundDockerImage) {
       throw new BadRequestException('DockerImage not found');
     }
-    return this.dockerImageRepository.update(id, { ...foundDockerImage, ...data });
+    return this.dockerImageRepository.update(id, {
+      ...foundDockerImage,
+      ...data,
+    });
   }
 
   async remove(id: string): Promise<DockerImage> {
