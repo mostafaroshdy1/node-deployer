@@ -10,7 +10,6 @@ export class DockerImageService {
   constructor(
     @Inject('IDockerImageRepository')
     private readonly dockerImageRepository: IDockerImageRepository,
-    private readonly dockerService: DockerService,
   ) {}
 
   async findAll(): Promise<DockerImage[]> {

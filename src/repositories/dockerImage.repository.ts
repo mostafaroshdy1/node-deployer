@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IDockerImageRepository } from 'src/interfaces/dockerImage-repository.interface';
 import { DockerService } from 'src/services/docker.service';
-import { DockerImage,Prisma } from '@prisma/client';
+import { DockerImage, Prisma } from '@prisma/client';
 
 @Injectable()
 export class DockerImageRepository implements IDockerImageRepository {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly dockerService: DockerService
+    private readonly dockerService: DockerService,
   ) {}
 
   findAll(): Promise<DockerImage[]> {
@@ -23,7 +23,10 @@ export class DockerImageRepository implements IDockerImageRepository {
     return this.prisma.dockerImage.create({ data });
   }
 
-  update(id: string, data: Prisma.DockerImageUpdateInput): Promise<DockerImage> {
+  update(
+    id: string,
+    data: Prisma.DockerImageUpdateInput,
+  ): Promise<DockerImage> {
     return this.prisma.dockerImage.update({ where: { id }, data });
   }
 

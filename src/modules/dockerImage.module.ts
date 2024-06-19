@@ -8,9 +8,13 @@ import { DockerImageService } from 'src/services/dockerImage.service';
   providers: [
     PrismaService,
     DockerService,
-    DockerImageRepository,
+    {
+      provide: 'IDockerImageRepository',
+      useClass: DockerImageRepository,
+    },
+
     DockerImageService,
   ],
-  exports: [DockerImageRepository],
+  // exports: [DockerImageRepository],
 })
 export class DockerImageModule {}

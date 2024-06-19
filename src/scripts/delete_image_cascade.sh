@@ -19,7 +19,7 @@ if [ -n "$CONTAINER_IDS" ]; then
 fi
 
 # Remove the image, suppressing output
-docker rmi $IMAGE_ID > /dev/null 2>&1
+docker rmi $IMAGE_ID --force > /dev/null 2>&1
 
 # Check if the image was successfully removed
 if [ $? -eq 0 ]; then
