@@ -1,23 +1,14 @@
 import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Prisma, Tier } from '@prisma/client';
+import { DockerImage, Prisma, Tier } from '@prisma/client';
 
 export class CreateContainerDto {
   id: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  name: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
   dockerImageId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  size: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -32,18 +23,6 @@ export class CreateContainerDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  memory: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  cpu: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   tierId: string;
-
-  tier: Tier;
-  dockerImage: any;
+  // tier: Tier;
 }

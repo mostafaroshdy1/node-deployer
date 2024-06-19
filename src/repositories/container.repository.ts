@@ -26,7 +26,7 @@ export class ContainerRepository implements IContainerRepository {
     });
   }
 
-  create(data: Prisma.ContainerCreateInput): Promise<Container> {
+  create(data: Prisma.ContainerCreateInput) {
     return this.prisma.container.create({
       data,
       include: {
@@ -49,6 +49,22 @@ export class ContainerRepository implements IContainerRepository {
   remove(id: string): Promise<Container> {
     return this.prisma.container.delete({
       where: { id },
+    });
+  }
+
+  removeByImageId(imageId: string): Promise<Prisma.BatchPayload> {
+    return this.prisma.container.deleteMany({
+      where: { dockerImageId: imageId },
+    });
+  }
+
+  findByImageId(imageId: string): Promise<Container[]> {
+    return this.prisma.container.findMany({
+      where: { dockerImageId: imageId },
+      include: {
+        tier: true,
+        dockerImage: true,
+      },
     });
   }
 }

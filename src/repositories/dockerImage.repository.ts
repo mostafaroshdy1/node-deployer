@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IDockerImageRepository } from 'src/interfaces/dockerImage-repository.interface';
-import { DockerImage, Prisma } from '@prisma/client';
+import { DockerImage, Prisma, Repo } from '@prisma/client';
 
 @Injectable()
 export class DockerImageRepository implements IDockerImageRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll(): Promise<DockerImage[]> {
     return this.prisma.dockerImage.findMany();
@@ -17,15 +15,26 @@ export class DockerImageRepository implements IDockerImageRepository {
     return this.prisma.dockerImage.findUnique({ where: { id } });
   }
 
-  create(data: Prisma.DockerImageCreateInput): Promise<DockerImage> {
-    return this.prisma.dockerImage.create({ data });
+  create(repoId: string, id: string): Promise<DockerImage> {
+    return this.prisma.dockerImage.create({
+      data: {
+        id,
+        repo: { connect: { id: repoId } },
+      },
+    });
   }
 
-  update(id: string, data: Prisma.DockerImageUpdateInput): Promise<DockerImage> {
+  update(
+    id: string,
+    data: Prisma.DockerImageUpdateInput,
+  ): Promise<DockerImage> {
     return this.prisma.dockerImage.update({ where: { id }, data });
   }
 
   async remove(id: string): Promise<DockerImage> {
     return this.prisma.dockerImage.delete({ where: { id } });
+  }
+  async removeByRepoId(repoId: string): Promise<DockerImage> {
+    return this.prisma.dockerImage.delete({ where: { repoId } });
   }
 }

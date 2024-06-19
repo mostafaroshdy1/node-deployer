@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { exec } from 'child_process';
 import * as path from 'path';
-import { DockerImageService } from './dockerImage.service';
-import { RepoService } from './repo.service';
-import { connect } from 'http2';
-import { DockerImage, Repo } from '@prisma/client';
+import { Repo } from '@prisma/client';
 
 @Injectable()
 export class DockerService {
@@ -74,23 +71,16 @@ export class DockerService {
     ]);
   }
 
-  cloneRepo(repoUrl: string): Promise<string> {
-    return this.runScript('clone_repo.sh', [repoUrl]);
+  cloneRepo(repoUrl: string, path: string): Promise<string> {
+    return this.runScript('clone_repo.sh', [repoUrl, path]);
   }
 
   generateDockerFile(nodeVersion: string, path: string): Promise<string> {
-    return this.runScript('generate_dockerfile.sh', [nodeVersion]);
+    console.log(path, nodeVersion);
+    return this.runScript('generate_dockerfile.sh', [nodeVersion, path]);
   }
 
-  // async createImage(path: string, repo: Repo): Promise<DockerImage> {
-  //   const imageId = await this.runScript('create_image.sh', [path]);
-  //   const image = this.dockerImageService.create({
-  //     id: imageId,
-  //     repo: {
-  //       connect: repo,
-  //     },
-  //   });
-
-  //   return image;
-  // }
+  createImage(path: string, repo: Repo): Promise<string> {
+    return this.runScript('create_image.sh', [path, repo.id]);
+  }
 }

@@ -7,4 +7,6 @@ export interface IContainerRepository {
   create(data: Prisma.ContainerCreateInput): Promise<Container>;
   update(id: string, data: Prisma.ContainerUpdateInput): Promise<Container>;
   remove(id: string): Promise<Container>;
+  removeByImageId(imageId: string): Promise<Prisma.BatchPayload>;
+  findByImageId(imageId: string): Promise<Container[]>;
 }

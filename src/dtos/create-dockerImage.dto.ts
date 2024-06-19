@@ -5,15 +5,15 @@ export class CreateDockerImageDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   repoId: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  size: string;
+  url: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  UserId: string;
 }

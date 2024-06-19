@@ -1,9 +1,11 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateRepoDto } from '../dtos/create-repo.dto';
 import { UpdateRepoDto } from '../dtos/update-repo.dto';
-import { Prisma, Repo } from '@prisma/client';
+import { DockerImage, Prisma, Repo } from '@prisma/client';
 import { IRepoRepository } from 'src/interfaces/repo-repository.interface';
 import { DockerService } from 'src/services/docker.service';
+import { ContainerService } from './container.service';
+import { DockerImageService } from './dockerImage.service';
 
 @Injectable()
 export class RepoService {
@@ -11,6 +13,7 @@ export class RepoService {
     @Inject('IRepoRepository')
     private readonly repoRepository: IRepoRepository,
     private readonly dockerService: DockerService,
+    private readonly dockerImageService: DockerImageService,
   ) {}
 
   async findAll(): Promise<Repo[]> {
@@ -22,7 +25,7 @@ export class RepoService {
   }
 
   async create(data: Prisma.RepoCreateInput): Promise<Repo> {
-    await this.dockerService.cloneRepo(data.url);
+    // await this.dockerService.cloneRepo(data.url);
     return this.repoRepository.create(data);
   }
 
@@ -35,14 +38,11 @@ export class RepoService {
   }
 
   async remove(id: string): Promise<Repo> {
-    const repo = await this.findById(id);
+    const repo = await this.repoRepository.remove(id);
     if (!repo) {
       throw new BadRequestException('Repo not found');
     }
-    if (repo.dockerImage) {
-      await this.dockerService.deleteImageCascade(repo.dockerImage.id);
-      await this.repoRepository.remove(repo.dockerImage.id);
-    }
-    return this.repoRepository.remove(id);
+    await this.dockerImageService.removeByRepoId(repo.id);
+    return repo;
   }
 }
