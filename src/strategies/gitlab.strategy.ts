@@ -9,7 +9,7 @@ export class GitLabStrategy extends PassportStrategy(
   PassportGitLabStrategy,
   'gitlab',
 ) {
-  private readonly logger = new Logger(GitLabStrategy.name);
+  // private readonly logger = new Logger(GitLabStrategy.name);
 
   constructor(private readonly authService: AuthService) {
     super({
@@ -28,11 +28,11 @@ export class GitLabStrategy extends PassportStrategy(
     // eslint-disable-next-line @typescript-eslint/ban-types
     done: Function,
   ): Promise<any> {
-    this.logger.debug(`Access Token: ${accessToken}`);
-    this.logger.debug(`Profile: ${JSON.stringify(profile)}`);
+    // this.logger.debug(`Access Token: ${accessToken}`);
+    // this.logger.debug(`Profile: ${JSON.stringify(profile)}`);
 
     const user = await this.authService.validateUser(profile, accessToken);
-    console.log(accessToken);
+    // console.log(accessToken);
     return done(null, user);
   }
 }

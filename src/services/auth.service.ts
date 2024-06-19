@@ -79,4 +79,20 @@ export class AuthService {
       );
     }
   }
+
+  async getGitLabUser(accessToken: string) {
+    try {
+      const response = await axios.get('https://gitlab.com/api/v4/user', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching GitLab user:', error.response.data);
+      throw new InternalServerErrorException(
+        'Failed to fetch GitLab user: ' +
+          error.response.data.error_description,
+      );
+    }
+  }
+  
 }
