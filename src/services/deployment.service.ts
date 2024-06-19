@@ -23,13 +23,16 @@ export class DeploymentService {
       // must add validation here first to check if the user owns the repo
       console.log('reposPath', this.reposPath);
       const repo = await this.repoService.findById(repoId);
+      console.log('repo', repo);
       const dirName = await this.dockerService.cloneRepo(
         repo.url,
         this.reposPath,
       );
-      const repoPath = this.reposPath + dirName;
-      await this.dockerService.generateDockerFile(nodeVersion, repoPath);
-      return this.dockerImageService.create(repo, repoPath);
+      console.log('dirName nnn', dirName)
+      // const repoPath = this.reposPath + dirName;
+      await this.dockerService.generateDockerFile(nodeVersion, dirName);
+      console.log('hereeeee'+nodeVersion + 'nodeVersion'+ dirName + 'dirName')
+      return this.dockerImageService.create(repo, dirName);
     } catch (error) {
       console.error(error);
     }

@@ -72,12 +72,13 @@ export class DockerService {
   }
 
   cloneRepo(repoUrl: string, path: string): Promise<string> {
+    console.log(repoUrl, path);
     return this.runScript('clone_repo.sh', [repoUrl, path]);
   }
 
   generateDockerFile(nodeVersion: string, path: string): Promise<string> {
     console.log(path, nodeVersion);
-    return this.runScript('generate_dockerfile.sh', [nodeVersion, path]);
+    return this.runScript('generate_Dockerfile.sh', [nodeVersion, path]);
   }
 
   createImage(path: string, repo: Repo): Promise<string> {
