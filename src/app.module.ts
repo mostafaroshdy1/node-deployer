@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DockerController } from './controllers/docker.controller';
 import { DockerService } from './services/docker.service';
 import { RepoModule } from './modules/repo.module';
+import { AuthService } from './services/auth.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { RepoModule } from './modules/repo.module';
     RepoModule,
   ],
   controllers: [AppController, AuthController, DockerController],
-  providers: [PrismaService, AppService, DockerService],
+  providers: [PrismaService, AppService,AuthService, DockerService],
 })
 export class AppModule {}

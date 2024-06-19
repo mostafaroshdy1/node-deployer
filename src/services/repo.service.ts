@@ -22,7 +22,6 @@ export class RepoService {
   }
 
   async create(data: Prisma.RepoCreateInput): Promise<Repo> {
-    // Perform any necessary validation or business logic here
     await this.dockerService.cloneRepo(data.url);
     return this.repoRepository.create(data);
   }
@@ -39,6 +38,10 @@ export class RepoService {
     const repo = await this.findById(id);
     if (!repo) {
       throw new BadRequestException('Repo not found');
+    }
+    if (repo.dockerImage) {
+      await this.dockerService.deleteImageCascade(repo.dockerImage.id);
+      await this.repoRepository.remove(repo.dockerImage.id);
     }
     return this.repoRepository.remove(id);
   }

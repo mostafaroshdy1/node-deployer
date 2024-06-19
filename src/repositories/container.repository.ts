@@ -1,57 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
-import { DockerService } from 'src/services/docker.service';
 import { Container, Prisma } from '@prisma/client';
 
 @Injectable()
 export class ContainerRepository implements IContainerRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly dockerService: DockerService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll(): Promise<Container[]> {
-    return this.prisma.container.findMany();
+    return this.prisma.container.findMany({
+      include: {
+        tier: true,
+        dockerImage: true,
+      },
+    });
   }
 
   findById(id: string): Promise<Container | null> {
-    return this.prisma.container.findUnique({ where: { id } });
+    return this.prisma.container.findUnique({
+      where: { id },
+      include: {
+        tier: true,
+        dockerImage: true,
+      },
+    });
   }
 
-  async create(data: Prisma.ContainerCreateInput): Promise<Container> {
-    const container = await this.prisma.container.create({
+  create(data: Prisma.ContainerCreateInput): Promise<Container> {
+    return this.prisma.container.create({
       data,
       include: {
         tier: true,
       },
     });
-    await this.dockerService.createContainer(
-      container.port,
-      container.ip,
-      container.tier.memory,
-      container.tier.cpu,
-      container.dockerImageId,
-    );
-    return container;
   }
 
   update(id: string, data: Prisma.ContainerUpdateInput): Promise<Container> {
-    return this.prisma.container.update({ where: { id }, data });
+    return this.prisma.container.update({
+      where: { id },
+      data,
+      include: {
+        tier: true,
+        dockerImage: true,
+      },
+    });
   }
 
-  async remove(id: string): Promise<Container> {
-    const container = await this.prisma.container.findUnique({
+  remove(id: string): Promise<Container> {
+    return this.prisma.container.delete({
       where: { id },
-      include: { dockerImage: true },
     });
-    if (container && container.dockerImage) {
-      await this.dockerService.deleteContainer(container.id);
-      await this.dockerService.deleteImage(container.dockerImage.id);
-      await this.prisma.dockerImage.delete({
-        where: { id: container.dockerImage.id },
-      });
-    }
-    return this.prisma.container.delete({ where: { id } });
   }
 }

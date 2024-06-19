@@ -1,40 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IRepoRepository } from 'src/interfaces/repo-repository.interface';
-import { DockerService } from 'src/services/docker.service';
-import { Repo ,Prisma} from '@prisma/client';
+import { Repo, Prisma } from '@prisma/client';
 
 @Injectable()
 export class RepoRepository implements IRepoRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly dockerService: DockerService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll(): Promise<Repo[]> {
-    return this.prisma.repo.findMany();
+    return this.prisma.repo.findMany({
+      include: {
+        dockerImage: true,
+      },
+    });
   }
 
   findById(id: string): Promise<Repo | null> {
-    return this.prisma.repo.findUnique({ where: { id } });
+    return this.prisma.repo.findUnique({
+      where: { id },
+      include: {
+        dockerImage: true,
+      },
+    });
   }
 
   create(data: Prisma.RepoCreateInput): Promise<Repo> {
-    return this.prisma.repo.create({ data });
+    return this.prisma.repo.create({
+      data,
+      include: {
+        dockerImage: true,
+      },
+    });
   }
 
   update(id: string, data: Prisma.RepoUpdateInput): Promise<Repo> {
-    return this.prisma.repo.update({ where: { id }, data });
+    return this.prisma.repo.update({
+      where: { id },
+      data,
+      include: {
+        dockerImage: true,
+      },
+    });
   }
 
-  async remove(id: string): Promise<Repo> {
-    const repo = await this.prisma.repo.findUnique({ where: { id }, include: { dockerImage: true } });
-    if (repo) {
-      if (repo.dockerImage) {
-        await this.dockerService.deleteImageCascade(repo.dockerImage.id);
-        await this.prisma.dockerImage.delete({ where: { id: repo.dockerImage.id } });
-      }
-    }
-    return this.prisma.repo.delete({ where: { id } });
+  remove(id: string): Promise<Repo> {
+    return this.prisma.repo.delete({
+      where: { id },
+    });
   }
 }

@@ -8,7 +8,7 @@ import { DockerImage, Repo } from '@prisma/client';
 
 @Injectable()
 export class DockerService {
-  constructor(private readonly dockerImageService: DockerImageService) {}
+  // constructor(private readonly dockerImageService: DockerImageService) {}
   private runScript(scriptName: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
       const scriptPath = path.join(__dirname, '../../src/scripts', scriptName);
@@ -82,15 +82,15 @@ export class DockerService {
     return this.runScript('generate_dockerfile.sh', [nodeVersion]);
   }
 
-  async createImage(path: string, repo: Repo): Promise<DockerImage> {
-    const imageId = await this.runScript('create_image.sh', [path]);
-    const image = this.dockerImageService.create({
-      id: imageId,
-      repo: {
-        connect: repo,
-      },
-    });
+  // async createImage(path: string, repo: Repo): Promise<DockerImage> {
+  //   const imageId = await this.runScript('create_image.sh', [path]);
+  //   const image = this.dockerImageService.create({
+  //     id: imageId,
+  //     repo: {
+  //       connect: repo,
+  //     },
+  //   });
 
-    return image;
-  }
+  //   return image;
+  // }
 }

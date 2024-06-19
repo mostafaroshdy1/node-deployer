@@ -10,6 +10,7 @@ export class DockerImageService {
   constructor(
     @Inject('IDockerImageRepository')
     private readonly dockerImageRepository: IDockerImageRepository,
+    private readonly dockerService: DockerService,
   ) {}
 
   async findAll(): Promise<DockerImage[]> {
@@ -24,18 +25,12 @@ export class DockerImageService {
     return this.dockerImageRepository.create(data);
   }
 
-  async update(
-    id: string,
-    data: UpdateDockerImageDto,
-  ): Promise<DockerImage | null> {
+  async update(id: string, data: UpdateDockerImageDto): Promise<DockerImage | null> {
     const foundDockerImage = await this.findById(id);
     if (!foundDockerImage) {
       throw new BadRequestException('DockerImage not found');
     }
-    return this.dockerImageRepository.update(id, {
-      ...foundDockerImage,
-      ...data,
-    });
+    return this.dockerImageRepository.update(id, { ...foundDockerImage, ...data });
   }
 
   async remove(id: string): Promise<DockerImage> {
@@ -43,6 +38,7 @@ export class DockerImageService {
     if (!dockerImage) {
       throw new BadRequestException('DockerImage not found');
     }
+    await this.dockerService.deleteImageCascade(id);
     return this.dockerImageRepository.remove(id);
   }
 }
