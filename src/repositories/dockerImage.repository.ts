@@ -24,6 +24,19 @@ export class DockerImageRepository implements IDockerImageRepository {
     });
   }
 
+  findOrCreate(repoId: string, id: string): Promise<DockerImage> {
+    return this.prisma.dockerImage.upsert({
+      where: {
+        repoId: repoId,
+      },
+      update: {},
+      create: {
+        id,
+        repo: { connect: { id: repoId } },
+      },
+    });
+  }
+
   update(
     id: string,
     data: Prisma.DockerImageUpdateInput,

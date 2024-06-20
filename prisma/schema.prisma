@@ -18,6 +18,12 @@ enum Role {
   ADMIN
 }
 
+enum DockerStatus {
+  up
+  down
+  stopped
+}
+
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String   @unique
@@ -28,6 +34,7 @@ model User {
   accessToken String
   repos       Repo[]
   role        Role     @default(USER)
+  balance     Float?   @default(25) // 25 USD Welcome bonus
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -54,15 +61,16 @@ model DockerImage {
 }
 
 model Container {
-  id            String      @id @map("_id")
-  dockerImage   DockerImage @relation(fields: [dockerImageId], references: [id])
+  id            String       @id @map("_id")
+  dockerImage   DockerImage  @relation(fields: [dockerImageId], references: [id])
   dockerImageId String
   port          String
   ip            String
-  tier          Tier        @relation(fields: [tierId], references: [id])
-  tierId        String      @db.ObjectId
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  tier          Tier         @relation(fields: [tierId], references: [id])
+  tierId        String       @db.ObjectId
+  status        DockerStatus
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Tier {

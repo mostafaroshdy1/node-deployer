@@ -2,7 +2,6 @@
 
 # Check if exactly 5 arguments are provided
 if [ "$#" -ne 5 ]; then
-
   exit 1
 fi
 
@@ -19,12 +18,12 @@ CONTAINER_PORT=3000
 CONTAINER_ID=$(docker run -d -p ${PUBLISHED_IP}:${PUBLISHED_PORT}:${CONTAINER_PORT} \
            --memory ${MEMORY_MAX_LIMIT} \
            --cpus ${CPU_MAX_LIMIT} \
-           ${IMAGE_ID})
+           ${IMAGE_ID} 2>/dev/null)
 
 if [ $? -eq 0 ]; then
   # Output only the container ID
-  echo $CONTAINER_ID
+  echo -n $CONTAINER_ID
 else
-  echo -n "Failed to create Docker container from image $IMAGE_ID."
+  # In case of failure, output nothing
   exit 1
 fi

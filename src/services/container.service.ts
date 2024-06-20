@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Container, Prisma } from '@prisma/client';
+import { Container, DockerImage, Prisma, Tier } from '@prisma/client';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 import { TierService } from './tier.service';
@@ -23,26 +23,28 @@ export class ContainerService {
     return this.containerRepository.findById(id);
   }
 
-  async create(data: CreateContainerDto): Promise<Container> {
+  async create(
+    port: string,
+    ip: string,
+    image: DockerImage,
+    tier: Tier,
+  ): Promise<Container> {
     try {
-      const [tier, container] = await Promise.all([
-        this.tierService.findById(data.tierId),
-        this.containerRepository.create({
-          ...data,
-          tier: { connect: { id: data.tierId } },
-          dockerImage: {
-            connect: { id: data.dockerImageId },
-          },
-        }),
-      ]);
-
-      await this.dockerService.createContainer(
-        container.port,
-        container.ip,
+      const contaienrId = await this.dockerService.createContainer(
+        port,
+        ip,
         tier.memory,
         tier.cpu,
-        container.dockerImageId,
+        image.id,
       );
+      const container = await this.containerRepository.create({
+        id: contaienrId,
+        port: port,
+        ip: ip,
+        status: 'up',
+        tier: { connect: { id: tier.id } },
+        dockerImage: { connect: { id: image.id } },
+      });
       return container;
     } catch (e) {
       console.log(e);

@@ -8,4 +8,5 @@ export interface IDockerImageRepository {
   update(id: string, data: Prisma.DockerImageUpdateInput): Promise<DockerImage>;
   remove(id: string): Promise<DockerImage>;
   removeByRepoId(repoId: string): Promise<DockerImage>;
+  findOrCreate(repoId: string, id: string): Promise<DockerImage>;
 }

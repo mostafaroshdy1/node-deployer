@@ -37,7 +37,7 @@ export class DockerImageService {
         'creaaaaaaaaaaaaaaaaaaaaaating in dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
       );
 
-      const dockerImage = await this.dockerImageRepository.create(
+      const dockerImage = await this.dockerImageRepository.findOrCreate(
         repo.id,
         dockerImageId.split(':')[1],
       );

@@ -16,12 +16,7 @@ export class RepoRepository implements IRepoRepository {
   }
 
   findById(id: string): Promise<Repo | null> {
-    return this.prisma.repo.findUnique({
-      where: { id },
-      include: {
-        dockerImage: true,
-      },
-    });
+    return this.prisma.repo.findUnique({ where: { id } });
   }
 
   create(data: Prisma.RepoCreateInput): Promise<Repo> {

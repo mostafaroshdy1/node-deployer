@@ -14,6 +14,10 @@ import { DeploymentController } from './controllers/deployment.controller';
 import { DeploymentService } from './services/deployment.service';
 import { RepoService } from './services/repo.service';
 import { RepoRepository } from './repositories/repo.repository';
+import { TierService } from './services/tier.service';
+import { TierRepository } from './repositories/tier.repository';
+import { ContainerService } from './services/container.service';
+import { ContainerRepository } from './repositories/container.repository';
 
 @Module({
   imports: [
@@ -35,9 +39,19 @@ import { RepoRepository } from './repositories/repo.repository';
     DockerService,
     DeploymentService,
     RepoService,
+    TierService,
+    ContainerService,
+    {
+      provide: 'ITierRepository',
+      useClass: TierRepository,
+    },
     {
       provide: 'IRepoRepository',
       useClass: RepoRepository,
+    },
+    {
+      provide: 'IContainerRepository',
+      useClass: ContainerRepository,
     },
   ],
 })

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
-import { Container, Prisma } from '@prisma/client';
+import { Container, DockerImage, Prisma, Tier } from '@prisma/client';
 
 @Injectable()
 export class ContainerRepository implements IContainerRepository {
@@ -26,13 +26,8 @@ export class ContainerRepository implements IContainerRepository {
     });
   }
 
-  create(data: Prisma.ContainerCreateInput) {
-    return this.prisma.container.create({
-      data,
-      include: {
-        tier: true,
-      },
-    });
+  create(data: Prisma.ContainerCreateInput): Promise<Container> {
+    return this.prisma.container.create({ data });
   }
 
   update(id: string, data: Prisma.ContainerUpdateInput): Promise<Container> {

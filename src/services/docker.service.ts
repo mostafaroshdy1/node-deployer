@@ -83,4 +83,8 @@ export class DockerService {
   createImage(path: string, imageName: string): Promise<string> {
     return this.runScript('create_image.sh', [path, imageName]);
   }
+
+  getFreeIpAddress(): Promise<string> {
+    return this.runScript('get_free_ip.sh', []);
+  }
 }
