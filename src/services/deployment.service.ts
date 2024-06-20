@@ -37,7 +37,7 @@ export class DeploymentService {
       console.error(error);
     }
   }
-
+  
   async deploy(
     repoId: string,
     userId: string,
@@ -49,6 +49,7 @@ export class DeploymentService {
         throw new UnauthorizedException('User does not own this repo');
 
       const image = await this.createImage(repoId, userId, nodeVersion);
+      console.log('image', image);
       return await this.dockerService.createContainer(
         '1111',
         '127.0.5.5',

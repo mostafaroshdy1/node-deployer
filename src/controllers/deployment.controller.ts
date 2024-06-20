@@ -13,4 +13,14 @@ export class DeploymentController {
       '20.14.0',
     );
   }
+  @Post('container')
+  async createContainer() {
+    return await this.deploymentService.deploy(
+      '66732ab6fa218dacf5e4e770',
+      '66732a7afa218dacf5e4e76a',
+      '20.14.0',
+    );
+  }
+
+
 }
