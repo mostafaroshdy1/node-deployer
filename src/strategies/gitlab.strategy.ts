@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Strategy as PassportGitLabStrategy } from 'passport-gitlab2';
 import { AuthService } from '../services/auth.service';
 import { PassportStrategy } from '@nestjs/passport';

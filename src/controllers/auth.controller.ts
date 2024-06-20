@@ -20,30 +20,25 @@ export class AuthController {
     res
       .status(302)
       .redirect(
-        `${process.env.FRONT_END_URL}auth/callback?access_token=${accessToken}&refresh_token=${accessToken}`
+        `${process.env.FRONT_END_URL}/auth/callback?access_token=${accessToken}&refresh_token=${accessToken}&provider=${req.params.provider}`,
       );
   }
 
+  // @Get(':provider/callback/repo')
+  // async gitlabAuthCallback(@Req() req: Request, @Res() res: Response) {
+  //   const accessToken = req.headers.authorization.split(' ')[1];
 
-  @Get(':provider/callback/repo')
-  async gitlabAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const accessToken = req.headers.authorization.split(' ')[1];
-    console.log(`Access Token: ${accessToken}`);
-    const provider = req.params.provider;  
-    console.log(`Provider: ${provider}`);
-
-    try {
-      const user = await this.authService.getGitLabUser(accessToken);
-      const repos = await this.authService.getGitLabRepos(accessToken);
-      const response = {
-        provider: provider,
-        user: user,
-        repos: repos
-      };
-      return res.json(response);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-  }
+  //   try {
+  //     const user = await this.authService.getGitLabUser(accessToken);
+  //     const repos = await this.authService.getGitLabRepos(accessToken);
+  //     const response = {
+  //       user: user,
+  //       repos: repos,
+  //     };
+  //     return res.json(response);
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(500).json({ message: 'Internal Server Error' });
+  //   }
+  // }
 }

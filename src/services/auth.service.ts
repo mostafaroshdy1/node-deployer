@@ -89,10 +89,8 @@ export class AuthService {
     } catch (error) {
       console.error('Error fetching GitLab user:', error.response.data);
       throw new InternalServerErrorException(
-        'Failed to fetch GitLab user: ' +
-          error.response.data.error_description,
+        'Failed to fetch GitLab user: ' + error.response.data.error_description,
       );
     }
   }
-  
 }
