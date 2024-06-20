@@ -25,6 +25,6 @@ if [ $? -eq 0 ]; then
   # Output only the container ID
   echo $CONTAINER_ID
 else
-  echo "Failed to create Docker container from image $IMAGE_ID."
+  echo -n "Failed to create Docker container from image $IMAGE_ID."
   exit 1
 fi

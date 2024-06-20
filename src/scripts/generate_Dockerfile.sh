@@ -33,5 +33,5 @@ EXPOSE 3000
 CMD ["node", "app.js"]
 EOF
 
-echo "Dockerfile created at $TARGET_PATH with Node.js version $NODE_VERSION"
+echo -n "Dockerfile created at $TARGET_PATH with Node.js version $NODE_VERSION"
 

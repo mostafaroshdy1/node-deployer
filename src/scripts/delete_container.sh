@@ -15,7 +15,7 @@ docker rm -v $CONTAINER_ID > /dev/null 2>&1
 
 # Check if the container was successfully removed
 if [ $? -eq 0 ]; then
-  echo "$CONTAINER_ID"
+  echo -n "$CONTAINER_ID"
 else
   exit 1
 fi

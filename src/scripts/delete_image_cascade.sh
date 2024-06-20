@@ -23,7 +23,7 @@ docker rmi $IMAGE_ID --force > /dev/null 2>&1
 
 # Check if the image was successfully removed
 if [ $? -eq 0 ]; then
-  echo "$IMAGE_ID"
+  echo -n "$IMAGE_ID"
 else
   exit 1
 fi

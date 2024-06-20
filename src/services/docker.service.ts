@@ -10,7 +10,7 @@ export class DockerService {
     return new Promise((resolve, reject) => {
       const scriptPath = path.join(__dirname, '../../src/scripts', scriptName);
       const command = `sudo ${scriptPath} ${args.join(' ')}`;
-
+      console.log(command);
       exec(command, (error, stdout, stderr) => {
         if (error) {
           console.error(
@@ -72,7 +72,6 @@ export class DockerService {
   }
 
   cloneRepo(repoUrl: string, path: string): Promise<string> {
-    console.log(repoUrl, path);
     return this.runScript('clone_repo.sh', [repoUrl, path]);
   }
 
@@ -81,7 +80,7 @@ export class DockerService {
     return this.runScript('generate_Dockerfile.sh', [nodeVersion, path]);
   }
 
-  createImage(path: string, repo: Repo): Promise<string> {
-    return this.runScript('create_image.sh', [path, repo.id]);
+  createImage(path: string, imageName: string): Promise<string> {
+    return this.runScript('create_image.sh', [path, imageName]);
   }
 }

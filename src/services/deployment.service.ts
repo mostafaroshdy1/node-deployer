@@ -4,6 +4,7 @@ import { RepoService } from './repo.service';
 import path from 'path';
 import { DockerImage } from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
+import { dir } from 'console';
 
 @Injectable()
 export class DeploymentService {
@@ -19,20 +20,19 @@ export class DeploymentService {
     nodeVersion: string,
   ): Promise<DockerImage> {
     try {
-      this.reposPath = path.join(__dirname, '../../../..');
+      this.reposPath = path.join(__dirname, '../../../../repos/');
       // must add validation here first to check if the user owns the repo
-      console.log('reposPath', this.reposPath);
       const repo = await this.repoService.findById(repoId);
-      console.log('repo', repo);
       const dirName = await this.dockerService.cloneRepo(
         repo.url,
         this.reposPath,
       );
-      console.log('dirName nnn', dirName)
-      // const repoPath = this.reposPath + dirName;
-      await this.dockerService.generateDockerFile(nodeVersion, dirName);
-      console.log('hereeeee'+nodeVersion + 'nodeVersion'+ dirName + 'dirName')
-      return this.dockerImageService.create(repo, dirName);
+      const imageName = dirName.toLocaleLowerCase();
+
+      const repoPath = this.reposPath + dirName;
+      await this.dockerService.generateDockerFile(nodeVersion, repoPath);
+      return this.dockerImageService.create(repo, repoPath, imageName);
+      return;
     } catch (error) {
       console.error(error);
     }

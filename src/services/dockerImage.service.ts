@@ -23,15 +23,23 @@ export class DockerImageService {
     return this.dockerImageRepository.findById(id);
   }
 
-  async create(repo: Repo, repoPath: string): Promise<DockerImage> {
+  async create(
+    repo: Repo,
+    repoPath: string,
+    imageName: string,
+  ): Promise<DockerImage> {
     try {
       const dockerImageId = await this.dockerService.createImage(
         repoPath,
-        repo,
+        imageName,
       );
+      console.log(
+        'creaaaaaaaaaaaaaaaaaaaaaating in dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      );
+
       const dockerImage = await this.dockerImageRepository.create(
         repo.id,
-        dockerImageId,
+        dockerImageId.split(':')[1],
       );
       return dockerImage;
     } catch (error) {
