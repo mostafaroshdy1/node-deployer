@@ -19,6 +19,7 @@ export class GithubStrategy extends PassportStrategy(GitHubStrategy, 'github') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     done: Function,
   ): Promise<any> {
     const user = await this.authService.validateUser(profile, accessToken);
