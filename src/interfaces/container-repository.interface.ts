@@ -9,4 +9,6 @@ export interface IContainerRepository {
   remove(id: string): Promise<Container>;
   removeByImageId(imageId: string): Promise<Prisma.BatchPayload>;
   findByImageId(imageId: string): Promise<Container[]>;
+  stopContainer(id: string): Promise<Container>;
+  resumeContainer(id: string): Promise<Container>;
 }

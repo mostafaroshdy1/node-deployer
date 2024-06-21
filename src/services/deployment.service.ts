@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Delete,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -82,6 +83,32 @@ export class DeploymentService {
         image,
         tier,
       );
+      return container;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  @Delete('container/:containerId')
+  async deleteContainer(containerId: string): Promise<Container> {
+    try {
+      const container = await this.containerService.remove(containerId);
+      return container;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async stopContainer(containerId: string): Promise<Container> {
+    try {
+      const container = await this.containerService.stopContainer(containerId);
+      return container;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async resumeContainer(containerId: string): Promise<Container> {
+    try {
+      const container = await this.containerService.resumeContainer(containerId);
       return container;
     } catch (error) {
       console.error(error);

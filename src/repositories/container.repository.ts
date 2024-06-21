@@ -62,4 +62,17 @@ export class ContainerRepository implements IContainerRepository {
       },
     });
   }
+  async stopContainer(id: string): Promise<Container> {
+    return this.prisma.container.update({
+      where: { id },
+      data: { status: 'stopped' },
+    });
+  }
+
+  async resumeContainer(id: string): Promise<Container> {
+    return this.prisma.container.update({
+      where: { id },
+      data: { status: 'up' },
+    });
+  }
 }

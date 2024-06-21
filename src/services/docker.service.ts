@@ -87,4 +87,11 @@ export class DockerService {
   getFreeIpAddress(): Promise<string> {
     return this.runScript('get_free_ip.sh', []);
   }
+  stopContainer(containerId: string): Promise<string> {
+    return this.runScript('stop_container.sh', [containerId]);
+  }
+
+  resumeContainer(containerId: string): Promise<string> {
+    return this.runScript('resume_container.sh', [containerId]);
+  }
 }

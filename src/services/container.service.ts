@@ -92,4 +92,23 @@ export class ContainerService {
       console.log(e);
     }
   }
+  async stopContainer(id: string): Promise<Container> {
+    try {
+      await this.dockerService.stopContainer(id);
+      return this.containerRepository.stopContainer(id);
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException('Failed to stop container');
+    }
+  }
+
+  async resumeContainer(id: string): Promise<Container> {
+    try {
+      await this.dockerService.resumeContainer(id);
+      return this.containerRepository.resumeContainer(id);
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException('Failed to resume container');
+    }
+  }
 }
