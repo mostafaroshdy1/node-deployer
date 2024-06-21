@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { DockerService } from './docker.service';
 import { RepoService } from './repo.service';
 import { Container, DockerImage } from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
@@ -15,7 +14,6 @@ import { ContainerService } from './container.service';
 @Injectable()
 export class DeploymentService {
   constructor(
-    private readonly dockerService: DockerService,
     private readonly repoService: RepoService,
     private readonly dockerImageService: DockerImageService,
     private readonly tierService: TierService,

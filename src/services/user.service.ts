@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { UpdateUserDto } from '../dtos/update-user.dto';
 import { Prisma, User } from '@prisma/client';
 import { IUserRepository } from 'src/interfaces/user-repository.interface';
 

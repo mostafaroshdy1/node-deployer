@@ -1,10 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { Container, DockerImage, Prisma, Tier } from '@prisma/client';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
 import { DockerService } from 'src/services/docker.service';
-import { TierService } from './tier.service';
-import { CreateContainerDto } from 'src/dtos/create-container.dto';
 
 @Injectable()
 export class ContainerService {
@@ -12,7 +9,6 @@ export class ContainerService {
     @Inject('IContainerRepository')
     private readonly containerRepository: IContainerRepository,
     private readonly dockerService: DockerService,
-    private readonly tierService: TierService,
   ) {}
 
   async findAll(): Promise<Container[]> {
