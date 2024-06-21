@@ -9,4 +9,5 @@ export interface IDockerImageRepository {
   remove(id: string): Promise<DockerImage>;
   removeByRepoId(repoId: string): Promise<DockerImage>;
   findOrCreate(repoId: string, id: string): Promise<DockerImage>;
+  findByRepoId(repoId: string): Promise<DockerImage | null>;
 }

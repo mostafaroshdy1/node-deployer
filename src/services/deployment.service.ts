@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { DockerService } from './docker.service';
 import { RepoService } from './repo.service';
-import path from 'path';
 import { Container, DockerImage } from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
 import { TierService } from './tier.service';
@@ -23,25 +22,10 @@ export class DeploymentService {
     private readonly userService: UserService,
     private readonly containerService: ContainerService,
   ) {}
-  reposPath: string;
-  async createImage(
-    repoId: string,
-    userId: string,
-    nodeVersion: string,
-  ): Promise<DockerImage> {
+  async createImage(repoId: string, nodeVersion: string): Promise<DockerImage> {
     try {
-      this.reposPath = path.join(__dirname, '../../../../repos/');
-      // must add validation here first to check if the user owns the repo
-      const repo = await this.repoService.findById(repoId);
-      const dirName = await this.dockerService.cloneRepo(
-        repo.url,
-        this.reposPath,
-      );
-      const imageName = dirName.toLocaleLowerCase();
-
-      const repoPath = this.reposPath + dirName;
-      await this.dockerService.generateDockerFile(nodeVersion, repoPath);
-      return this.dockerImageService.create(repo, repoPath, imageName);
+      const imageData = await this.repoService.cloneRepo(repoId);
+      return this.dockerImageService.create(imageData, nodeVersion);
     } catch (error) {
       console.error(error);
     }
@@ -54,12 +38,10 @@ export class DeploymentService {
     tierId: string,
   ): Promise<Container> {
     try {
-      const [repo, user, ipAddress] = await Promise.all([
+      const [repo, user] = await Promise.all([
         this.repoService.findById(repoId),
         this.userService.findById(userId),
-        this.dockerService.getFreeIpAddress(),
       ]);
-      const [ip, port] = ipAddress.split(':');
 
       // must be put in guard
       if (repo.userId !== userId)
@@ -67,9 +49,8 @@ export class DeploymentService {
 
       const [tier, image] = await Promise.all([
         this.tierService.findById(tierId),
-        this.createImage(repoId, userId, nodeVersion),
+        this.createImage(repoId, nodeVersion),
       ]);
-
       if (tier.price > user.balance)
         throw new BadRequestException('Insufficient balance');
 
@@ -77,12 +58,7 @@ export class DeploymentService {
         balance: user.balance - tier.price,
       });
 
-      const container = await this.containerService.create(
-        port,
-        ip,
-        image,
-        tier,
-      );
+      const container = await this.containerService.create(image, tier);
       return container;
     } catch (error) {
       console.error(error);
@@ -108,7 +84,8 @@ export class DeploymentService {
 
   async resumeContainer(containerId: string): Promise<Container> {
     try {
-      const container = await this.containerService.resumeContainer(containerId);
+      const container =
+        await this.containerService.resumeContainer(containerId);
       return container;
     } catch (error) {
       console.error(error);

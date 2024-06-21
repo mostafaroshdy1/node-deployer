@@ -24,23 +24,33 @@ export class DockerImageService {
   }
 
   async create(
-    repo: Repo,
-    repoPath: string,
-    imageName: string,
+    data: {
+      repo: Repo;
+      repoPath: string;
+      imageName: string;
+    },
+    nodeVersion: string,
   ): Promise<DockerImage> {
     try {
-      const dockerImageId = await this.dockerService.createImage(
-        repoPath,
-        imageName,
-      );
-      console.log(
-        'creaaaaaaaaaaaaaaaaaaaaaating in dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      await this.dockerService.generateDockerFile(nodeVersion, data.repoPath);
+
+      let dockerImage = await this.dockerImageRepository.findByRepoId(
+        data.repo.id,
       );
 
-      const dockerImage = await this.dockerImageRepository.findOrCreate(
-        repo.id,
+      if (dockerImage) {
+        return dockerImage;
+      }
+
+      const dockerImageId = await this.dockerService.createImage(
+        data.repoPath,
+        data.imageName,
+      );
+      dockerImage = await this.dockerImageRepository.create(
+        data.repo.id,
         dockerImageId.split(':')[1],
       );
+
       return dockerImage;
     } catch (error) {
       console.error(error);

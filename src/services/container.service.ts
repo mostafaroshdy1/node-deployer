@@ -23,13 +23,11 @@ export class ContainerService {
     return this.containerRepository.findById(id);
   }
 
-  async create(
-    port: string,
-    ip: string,
-    image: DockerImage,
-    tier: Tier,
-  ): Promise<Container> {
+  async create(image: DockerImage, tier: Tier): Promise<Container> {
     try {
+      const ipAddress = await this.dockerService.getFreeIpAddress();
+      console.log(ipAddress);
+      const [ip, port] = ipAddress.split(':');
       const contaienrId = await this.dockerService.createContainer(
         port,
         ip,
@@ -80,6 +78,7 @@ export class ContainerService {
       const containers = await this.containerRepository.findByImageId(imageId);
       const deleted = await this.containerRepository.removeByImageId(imageId);
 
+      // Delete containers from infra
       if (containers.length > 0) {
         await Promise.all(
           containers.map(async (container) => {

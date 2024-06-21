@@ -44,10 +44,16 @@ export class DockerImageRepository implements IDockerImageRepository {
     return this.prisma.dockerImage.update({ where: { id }, data });
   }
 
-  async remove(id: string): Promise<DockerImage> {
+  remove(id: string): Promise<DockerImage> {
     return this.prisma.dockerImage.delete({ where: { id } });
   }
-  async removeByRepoId(repoId: string): Promise<DockerImage> {
+  removeByRepoId(repoId: string): Promise<DockerImage> {
     return this.prisma.dockerImage.delete({ where: { repoId } });
+  }
+
+  findByRepoId(repoId: string): Promise<DockerImage | null> {
+    return this.prisma.dockerImage.findFirst({
+      where: { repoId },
+    });
   }
 }

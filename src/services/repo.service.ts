@@ -6,6 +6,7 @@ import { IRepoRepository } from 'src/interfaces/repo-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 import { ContainerService } from './container.service';
 import { DockerImageService } from './dockerImage.service';
+import path from 'path';
 
 @Injectable()
 export class RepoService {
@@ -44,5 +45,21 @@ export class RepoService {
     }
     await this.dockerImageService.removeByRepoId(repo.id);
     return repo;
+  }
+
+  async cloneRepo(repoId: string): Promise<{
+    repoPath: string;
+    imageName: string;
+    repo: Repo;
+  }> {
+    const reposPath = path.join(__dirname, '../../../../repos/');
+    const repo = await this.findById(repoId);
+    const dirName = await this.dockerService.cloneRepo(repo.url, reposPath);
+    const imageName = dirName.toLocaleLowerCase();
+    return {
+      repoPath: reposPath + dirName,
+      imageName: imageName,
+      repo: repo,
+    };
   }
 }

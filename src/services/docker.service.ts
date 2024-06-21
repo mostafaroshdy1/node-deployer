@@ -76,7 +76,6 @@ export class DockerService {
   }
 
   generateDockerFile(nodeVersion: string, path: string): Promise<string> {
-    console.log(path, nodeVersion);
     return this.runScript('generate_Dockerfile.sh', [nodeVersion, path]);
   }
 
