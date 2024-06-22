@@ -11,4 +11,11 @@ export interface IContainerRepository {
   findByImageId(imageId: string): Promise<Container[]>;
   stopContainer(id: string): Promise<Container>;
   resumeContainer(id: string): Promise<Container>;
+  findWhere(data: Prisma.ContainerWhereInput): Promise<Container[]>;
+  countWhere(data: Prisma.ContainerWhereInput): Promise<number>;
+  findWithPagination(
+    where: Prisma.ContainerWhereInput,
+    skip: number,
+    limit: number,
+  ): Promise<Container[]>;
 }

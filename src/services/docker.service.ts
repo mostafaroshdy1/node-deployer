@@ -93,4 +93,12 @@ export class DockerService {
   resumeContainer(containerId: string): Promise<string> {
     return this.runScript('resume_container.sh', [containerId]);
   }
+
+  logMemoryUsage(containerId: string): Promise<string> {
+    return this.runScript('memory_usage.sh', [containerId]);
+  }
+
+  logCpuUsage(containerId: string): Promise<string> {
+    return this.runScript('cpu_usage.sh', [containerId]);
+  }
 }

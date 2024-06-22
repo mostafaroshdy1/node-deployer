@@ -8,7 +8,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/controllers/auth.controller';
 import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
 
-
 @Module({
   imports: [
     UserModule,
@@ -22,4 +21,3 @@ import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
   providers: [AuthService, GithubStrategy, GitLabStrategy],
 })
 export class AuthModule {}
-

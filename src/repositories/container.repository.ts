@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
-import { Container, DockerImage, Prisma, Tier } from '@prisma/client';
+import { $Enums, Container, DockerImage, Prisma, Tier } from '@prisma/client';
 
 @Injectable()
 export class ContainerRepository implements IContainerRepository {
@@ -13,6 +13,12 @@ export class ContainerRepository implements IContainerRepository {
         tier: true,
         dockerImage: true,
       },
+    });
+  }
+
+  findWhere(data: Prisma.ContainerWhereInput): Promise<Container[]> {
+    return this.prisma.container.findMany({
+      where: data,
     });
   }
 
@@ -73,6 +79,24 @@ export class ContainerRepository implements IContainerRepository {
     return this.prisma.container.update({
       where: { id },
       data: { status: 'up' },
+    });
+  }
+
+  countWhere(data: Prisma.ContainerWhereInput): Promise<number> {
+    return this.prisma.container.count({
+      where: data,
+    });
+  }
+
+  findWithPagination(
+    where: Prisma.ContainerWhereInput,
+    skip: number,
+    limit: number,
+  ): Promise<Container[]> {
+    return this.prisma.container.findMany({
+      where,
+      skip,
+      take: limit,
     });
   }
 

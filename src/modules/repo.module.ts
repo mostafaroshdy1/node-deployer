@@ -2,34 +2,21 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { DockerService } from '../services/docker.service';
 import { RepoRepository } from '../repositories/repo.repository';
-import { DockerImageService } from 'src/services/dockerImage.service';
-import { DockerImageRepository } from 'src/repositories/dockerImage.repository';
-import { ContainerService } from 'src/services/container.service';
-import { ContainerRepository } from 'src/repositories/container.repository';
-import { TierRepository } from 'src/repositories/tier.repository';
-import { TierService } from 'src/services/tier.service';
+import { RepoService } from 'src/services/repo.service';
+import { DockerImageModule } from './dockerImage.module';
+import { ContainerModule } from './container.module';
 
 @Module({
+  imports: [DockerImageModule, ContainerModule],
   providers: [
     PrismaService,
     DockerService,
-    RepoRepository,
-    DockerImageService,
+    RepoService,
     {
-      provide: 'IDockerImageRepository',
-      useClass: DockerImageRepository,
+      provide: 'IRepoRepository',
+      useClass: RepoRepository,
     },
-    {
-      provide: 'IContainerRepository',
-      useClass: ContainerRepository,
-    },
-    {
-      provide: 'ITierRepository',
-      useClass: TierRepository,
-    },
-    ContainerService,
-    TierService,
   ],
-  exports: [RepoRepository, DockerImageService],
+  exports: [RepoService, DockerImageModule, ContainerModule],
 })
 export class RepoModule {}

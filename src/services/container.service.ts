@@ -1,10 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { Container, DockerImage, Prisma, Tier } from '@prisma/client';
 import { IContainerRepository } from 'src/interfaces/container-repository.interface';
 import { DockerService } from 'src/services/docker.service';
-import { TierService } from './tier.service';
-import { CreateContainerDto } from 'src/dtos/create-container.dto';
 
 @Injectable()
 export class ContainerService {
@@ -12,15 +9,20 @@ export class ContainerService {
     @Inject('IContainerRepository')
     private readonly containerRepository: IContainerRepository,
     private readonly dockerService: DockerService,
-    private readonly tierService: TierService,
   ) {}
 
-  async findAll(): Promise<Container[]> {
+  findAll(): Promise<Container[]> {
     return this.containerRepository.findAll();
   }
 
-  async findById(id: string): Promise<Container | null> {
+  findById(id: string): Promise<Container | null> {
     return this.containerRepository.findById(id);
+  }
+  async getAllActiveContainerIds(): Promise<string[]> {
+    const containers = await this.containerRepository.findWhere({
+      status: 'up',
+    });
+    return containers.map((container) => container.id);
   }
 
   async create(image: DockerImage, tier: Tier,ip:string=null,port:string=null): Promise<Container> {
@@ -112,7 +114,23 @@ export class ContainerService {
       throw new BadRequestException('Failed to resume container');
     }
   }
+
   async findByImageId(imageId: string): Promise<Container[]> {
     return this.containerRepository.findByImageId(imageId);
+
+
+  countActiveContainers(): Promise<number> {
+    return this.containerRepository.countWhere({
+      status: 'up',
+    });
+  }
+
+  findWithPagination(
+    where: Prisma.ContainerWhereInput,
+    skip: number,
+    take: number,
+  ): Promise<Container[]> {
+    return this.containerRepository.findWithPagination(where, skip, take);
+
   }
 }
