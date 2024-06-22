@@ -1,10 +1,14 @@
 import { Controller, Get, Req, Res, Post, Body, Param } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { RepoService } from 'src/services/repo.service';
+import { ConcreteObserver } from '../observers/concrete.observer';
 
 @Controller('repo')
 export class RepoController {
-  constructor(private readonly repoService: RepoService) {}
+  constructor(private readonly repoService: RepoService) {
+    const observer = new ConcreteObserver();
+    this.repoService.addObserver(observer);
+  }
 
   @Get(':provider/callback')
   async providerReposCallback(@Req() req: Request, @Res() res: Response) {
@@ -51,5 +55,13 @@ export class RepoController {
       console.log(error);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
+  }
+
+  @Post('/webhook')
+  async handleWebhook(@Body() body: any, @Res() res: Response) {
+    // console.log('Received webhook event:', body);
+    // save to database
+    this.repoService.notifyObservers(body);
+    res.status(200).send('Webhook received');
   }
 }
