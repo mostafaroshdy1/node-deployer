@@ -24,4 +24,9 @@ export class CreateRepoDto {
   @ApiProperty()
   @IsString()
   env: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  nodeVersion: string;
 }

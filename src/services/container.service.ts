@@ -23,11 +23,13 @@ export class ContainerService {
     return this.containerRepository.findById(id);
   }
 
-  async create(image: DockerImage, tier: Tier): Promise<Container> {
+  async create(image: DockerImage, tier: Tier,ip:string=null,port:string=null): Promise<Container> {
     try {
+      if(ip==null && port==null){
       const ipAddress = await this.dockerService.getFreeIpAddress();
       console.log(ipAddress);
-      const [ip, port] = ipAddress.split(':');
+      [ip, port] = ipAddress.split(':');
+      }
       const contaienrId = await this.dockerService.createContainer(
         port,
         ip,
@@ -109,5 +111,8 @@ export class ContainerService {
       console.log(e);
       throw new BadRequestException('Failed to resume container');
     }
+  }
+  async findByImageId(imageId: string): Promise<Container[]> {
+    return this.containerRepository.findByImageId(imageId);
   }
 }
