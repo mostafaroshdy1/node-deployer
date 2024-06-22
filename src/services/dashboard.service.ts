@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Observer } from '../interfaces/observer.interface';
 
 @Injectable()
-export class RepoService {
+export class DashboardService {
   constructor() {}
   private observers: Observer[] = [];
 
