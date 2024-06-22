@@ -6,6 +6,7 @@ import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/entities/user.entity';
 import axios from 'axios';
+import providers from 'src/common/types/providers';
 
 @Injectable()
 export class AuthService {
@@ -88,32 +89,12 @@ export class AuthService {
 	}
 
 	async getRedirectUrl(provider: string) {
-		let rootUrl: string;
-		let options;
-		switch (provider) {
-			case 'github':
-				rootUrl = 'https://github.com/login/oauth/authorize';
-				options = {
-					client_id: process.env.GITHUB_CLIENT_ID,
-					redirect_uri: process.env.GITHUB_CALLBACK_URL,
-					scope: 'scope',
-				};
-				break;
-			case 'gitlab':
-				rootUrl = 'https://gitlab.com/oauth/authorize';
-				options = {
-					client_id: process.env.GITLAB_CLIENT_ID,
-					redirect_uri: process.env.GITLAB_CALLBACK_URL,
-					scope: 'api read_api read_user sudo',
-					response_type: 'code',
-				};
-				break;
+		if (!providers[provider]) {
+			throw new Error(`Unsupported provider: ${provider}`);
 		}
 
+		const { rootUrl, options } = providers[provider];
 		const queryString = new URLSearchParams(options).toString();
-
-		const url = `${rootUrl}?${queryString.toString()}`;
-
-		return url;
+		return `${rootUrl}?${queryString}`;
 	}
 }
