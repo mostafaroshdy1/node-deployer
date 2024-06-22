@@ -89,4 +89,8 @@ export class DockerImageService {
     await this.dockerService.deleteImageCascade(dockerImage.id);
     return dockerImage;
   }
+
+  async findByRepoId(repoId: string): Promise<DockerImage> {
+    return this.dockerImageRepository.findByRepoId(repoId);
+  }
 }

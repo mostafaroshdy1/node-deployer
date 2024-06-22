@@ -62,31 +62,34 @@ export class DeploymentService {
       console.error(error);
     }
   }
-  @Delete('container/:containerId')
-  async deleteContainer(containerId: string): Promise<Container> {
-    try {
-      const container = await this.containerService.remove(containerId);
-      return container;
-    } catch (error) {
-      console.error(error);
+  async redeploy(repoId:string,userId:String):Promise<Container[]>{
+    try{
+      const repo=await this.repoService.findById(repoId);
+      const nodeVersion=repo.nodeVersion;
+      const image=await this.dockerImageService.findByRepoId(repoId);
+      const containers=await this.containerService.findByImageId(image.id);
+      //i want to loop on containers and save ip, port , tierId and status and then delete them
+      if (repo.userId !== userId)
+        throw new UnauthorizedException('User does not own this repo');
+      const containersData=containers.map(container=>{
+        return {
+          ip:container.ip,
+          port:container.port,
+          tierId:container.tierId,
+        }
+      })
+      await this.containerService.removeByImageId(image.id);
+      await this.dockerImageService.remove(image.id);
+      const newImage=await this.createImage(repoId,nodeVersion);
+      const newContainers=await Promise.all(containersData.map(async containerData=>{
+        const tier=await this.tierService.findById(containerData.tierId);
+        return this.containerService.create(newImage,tier,containerData.ip,containerData.port)
+      })
+      )
+      return newContainers;
     }
-  }
-  async stopContainer(containerId: string): Promise<Container> {
-    try {
-      const container = await this.containerService.stopContainer(containerId);
-      return container;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async resumeContainer(containerId: string): Promise<Container> {
-    try {
-      const container =
-        await this.containerService.resumeContainer(containerId);
-      return container;
-    } catch (error) {
-      console.error(error);
+    catch(error){
+      console.error(error)
     }
   }
 }

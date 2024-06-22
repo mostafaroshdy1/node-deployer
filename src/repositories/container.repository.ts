@@ -81,6 +81,7 @@ export class ContainerRepository implements IContainerRepository {
       data: { status: 'up' },
     });
   }
+
   countWhere(data: Prisma.ContainerWhereInput): Promise<number> {
     return this.prisma.container.count({
       where: data,
@@ -98,4 +99,5 @@ export class ContainerRepository implements IContainerRepository {
       take: limit,
     });
   }
+
 }

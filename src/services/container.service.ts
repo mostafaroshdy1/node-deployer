@@ -25,11 +25,13 @@ export class ContainerService {
     return containers.map((container) => container.id);
   }
 
-  async create(image: DockerImage, tier: Tier): Promise<Container> {
+  async create(image: DockerImage, tier: Tier,ip:string=null,port:string=null): Promise<Container> {
     try {
+      if(ip==null && port==null){
       const ipAddress = await this.dockerService.getFreeIpAddress();
       console.log(ipAddress);
-      const [ip, port] = ipAddress.split(':');
+      [ip, port] = ipAddress.split(':');
+      }
       const contaienrId = await this.dockerService.createContainer(
         port,
         ip,
@@ -113,6 +115,10 @@ export class ContainerService {
     }
   }
 
+  async findByImageId(imageId: string): Promise<Container[]> {
+    return this.containerRepository.findByImageId(imageId);
+
+
   countActiveContainers(): Promise<number> {
     return this.containerRepository.countWhere({
       status: 'up',
@@ -125,5 +131,6 @@ export class ContainerService {
     take: number,
   ): Promise<Container[]> {
     return this.containerRepository.findWithPagination(where, skip, take);
+
   }
 }

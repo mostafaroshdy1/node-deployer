@@ -47,6 +47,7 @@ model Repo {
   dockerImage DockerImage?
   event       String?
   env         String?
+  nodeVersion String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
