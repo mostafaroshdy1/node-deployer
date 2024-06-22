@@ -11,12 +11,18 @@ export class ContainerService {
     private readonly dockerService: DockerService,
   ) {}
 
-  async findAll(): Promise<Container[]> {
+  findAll(): Promise<Container[]> {
     return this.containerRepository.findAll();
   }
 
-  async findById(id: string): Promise<Container | null> {
+  findById(id: string): Promise<Container | null> {
     return this.containerRepository.findById(id);
+  }
+  async getAllActiveContainerIds(): Promise<string[]> {
+    const containers = await this.containerRepository.findWhere({
+      status: 'up',
+    });
+    return containers.map((container) => container.id);
   }
 
   async create(image: DockerImage, tier: Tier): Promise<Container> {
@@ -105,5 +111,19 @@ export class ContainerService {
       console.log(e);
       throw new BadRequestException('Failed to resume container');
     }
+  }
+
+  countActiveContainers(): Promise<number> {
+    return this.containerRepository.countWhere({
+      status: 'up',
+    });
+  }
+
+  findWithPagination(
+    where: Prisma.ContainerWhereInput,
+    skip: number,
+    take: number,
+  ): Promise<Container[]> {
+    return this.containerRepository.findWithPagination(where, skip, take);
   }
 }

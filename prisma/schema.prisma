@@ -69,8 +69,19 @@ model Container {
   tier          Tier         @relation(fields: [tierId], references: [id])
   tierId        String       @db.ObjectId
   status        DockerStatus
+  analytics     Analytics[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+}
+
+model Analytics {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  container   Container @relation(fields: [containerId], references: [id])
+  containerId String
+  memory      String
+  cpu         String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Tier {
