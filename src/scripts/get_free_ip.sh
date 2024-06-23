@@ -19,7 +19,7 @@ is_free() {
 int_to_ip() {
     local IP_INT=$1
     local IP=$((IP_INT>>24&255)).$((IP_INT>>16&255)).$((IP_INT>>8&255)).$((IP_INT&255))
-    echo $IP
+    echo -n $IP
 }
 
 # Range of ports to check
