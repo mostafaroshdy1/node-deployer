@@ -18,6 +18,12 @@ enum Role {
   ADMIN
 }
 
+enum DockerStatus {
+  up
+  down
+  stopped
+}
+
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String
@@ -28,6 +34,7 @@ model User {
   accessToken String
   repos       Repo[]
   role        Role     @default(USER)
+  balance     Float?   @default(25) // 25 USD Welcome bonus
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -37,37 +44,47 @@ model User {
 model Repo {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
   url         String       @unique
-  name        String
   user        User         @relation(fields: [userId], references: [id])
   userId      String       @db.ObjectId
   dockerImage DockerImage?
-  event       String
-  env         String
+  event       String?
+  env         String?
+  nodeVersion String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model DockerImage {
   id         String      @id @map("_id")
-  name       String
   repo       Repo        @relation(fields: [repoId], references: [id])
   repoId     String      @unique @db.ObjectId
-  size       String
-  constiners Container[]
+  Containers Container[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
 
 model Container {
-  id            String      @id @map("_id")
-  dockerImage   DockerImage @relation(fields: [dockerImageId], references: [id])
+  id            String       @id @map("_id")
+  dockerImage   DockerImage  @relation(fields: [dockerImageId], references: [id])
   dockerImageId String
-  name          String
-  size          String
-  tier          Tier        @relation(fields: [tierId], references: [id])
-  tierId        String      @db.ObjectId
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  port          String
+  ip            String
+  tier          Tier         @relation(fields: [tierId], references: [id])
+  tierId        String       @db.ObjectId
+  status        DockerStatus
+  analytics     Analytics[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Analytics {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  container   Container @relation(fields: [containerId], references: [id])
+  containerId String
+  memory      String
+  cpu         String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Tier {

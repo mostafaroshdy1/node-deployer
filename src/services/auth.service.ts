@@ -97,4 +97,5 @@ export class AuthService {
 		const queryString = new URLSearchParams(options).toString();
 		return `${rootUrl}?${queryString}`;
 	}
+
 }

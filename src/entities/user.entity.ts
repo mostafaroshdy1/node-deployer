@@ -36,4 +36,7 @@ export class UserEntity implements User {
 
   @Exclude()
   updatedAt: Date;
+
+  @Exclude()
+  balance: number;
 }

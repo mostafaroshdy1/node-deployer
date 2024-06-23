@@ -1,7 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { UpdateUserDto } from '../dtos/update-user.dto';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { IUserRepository } from 'src/interfaces/user-repository.interface';
 
 @Injectable()
@@ -31,7 +30,7 @@ export class UserService {
     return this.userRepository.create(data);
   }
 
-  async update(id: string, data: UpdateUserDto): Promise<User | null> {
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {
     const foundUser = await this.findById(id);
     if (!foundUser) {
       throw new BadRequestException('User not found');
