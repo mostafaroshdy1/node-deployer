@@ -9,6 +9,8 @@ import { TierModule } from './modules/tier.module';
 import { DeploymentModule } from './modules/deployment.module';
 import { AnalyticsModule } from './modules/analytics.module';
 import { ContainersInitializerService } from './services/containers.initializer.service';
+import { DashboardModule } from './modules/dashboard.module';
+
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { ContainersInitializerService } from './services/containers.initializer.
     UserModule,
     TierModule,
     RepoModule,
+    DashboardModule,
     DeploymentModule,
   ],
   controllers: [AppController],

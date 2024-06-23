@@ -3,8 +3,15 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: process.env.FRONT_END_URL || 'http://localhost:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -12,7 +19,7 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger Setup
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Node-Deployer API')
     .setDescription('The Node-Deployer API description')

@@ -67,4 +67,31 @@ export class AnalyticsService {
     const containersIds = containers.map((container) => container.id);
     this.containersLogger(containersIds);
   }
+  async getResourceUsageByInterval(containerId: string, interval: string): Promise<any[]> {
+    let start: string;
+    let stop: string;
+
+    switch (interval) {
+      case 'lastHour':
+        start = '-1h';
+        stop = 'now()';
+        break;
+      case 'lastDay':
+        start = '-1d';
+        stop = 'now()';
+        break;
+      case 'lastWeek':
+        start = '-1w';
+        stop = 'now()';
+        break;
+      case 'lastMonth':
+        start = '-30d';
+        stop = 'now()';
+        break;
+      default:
+        throw new Error('Invalid interval');
+    }
+
+    return await this.analyticsRepository.queryResourceUsage(containerId, start, stop);
+  }
 }

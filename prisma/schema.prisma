@@ -26,7 +26,7 @@ enum DockerStatus {
 
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  email       String   @unique
+  email       String
   name        String
   username    String
   provider    String
@@ -37,6 +37,8 @@ model User {
   balance     Float?   @default(25) // 25 USD Welcome bonus
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([email, provider])
 }
 
 model Repo {
