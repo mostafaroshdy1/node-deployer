@@ -15,8 +15,8 @@ import { AnalyticsProcessor } from 'src/processors/analytics.processor';
     ScheduleModule.forRoot(),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
-        port: 6379,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT) || 6379,
       },
     }),
     BullModule.registerQueue({
