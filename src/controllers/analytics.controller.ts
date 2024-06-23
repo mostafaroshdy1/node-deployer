@@ -7,16 +7,24 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
 
+  // @Get('usage')
+  // async getResourceUsage(
+  //   @Query('containerId') containerId: string,
+  //   @Query('start') start: string,
+  //   @Query('stop') stop: string,
+  // ) {
+  //   return await this.analyticsService.getResourceUsage(
+  //     containerId,
+  //     start,
+  //     stop,
+  //   );
+  // }
+
   @Get('usage')
   async getResourceUsage(
     @Query('containerId') containerId: string,
-    @Query('start') start: string,
-    @Query('stop') stop: string,
+    @Query('interval') interval: string,
   ) {
-    return await this.analyticsService.getResourceUsage(
-      containerId,
-      start,
-      stop,
-    );
+    return await this.analyticsService.getResourceUsageByInterval(containerId, interval);
   }
 }
