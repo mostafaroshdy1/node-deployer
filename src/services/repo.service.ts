@@ -54,6 +54,9 @@ export class RepoService {
   }> {
     const reposPath = path.join(__dirname, '../../../../repos/');
     const repo = await this.findById(repoId);
+    if (!repo || !repo.url) {
+      throw new BadRequestException('Repo not found');
+    }
     const dirName = await this.dockerService.cloneRepo(repo.url, reposPath);
     const imageName = dirName.toLocaleLowerCase();
     return {

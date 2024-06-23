@@ -25,12 +25,16 @@ export class ContainerService {
     return containers.map((container) => container.id);
   }
 
-  async create(image: DockerImage, tier: Tier,ip:string=null,port:string=null): Promise<Container> {
+  async create(
+    image: DockerImage,
+    tier: Tier,
+    ip: string = null,
+    port: string = null,
+  ): Promise<Container> {
     try {
-      if(ip==null && port==null){
-      const ipAddress = await this.dockerService.getFreeIpAddress();
-      console.log(ipAddress);
-      [ip, port] = ipAddress.split(':');
+      if (ip == null && port == null) {
+        const ipAddress = await this.dockerService.getFreeIpAddress();
+        [ip, port] = ipAddress.split(':');
       }
       const contaienrId = await this.dockerService.createContainer(
         port,
@@ -131,7 +135,6 @@ export class ContainerService {
     take: number,
   ): Promise<Container[]> {
     return this.containerRepository.findWithPagination(where, skip, take);
-
   }
 
   async getContainerCpu(containerId: string): Promise<string> {

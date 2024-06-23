@@ -1,11 +1,8 @@
-// src/analytics/services/analytics.service.ts
-
 import { Inject, Injectable } from '@nestjs/common';
 import { IAnalyticsRepository } from 'src/interfaces/analytics.repository.interface';
 import { ContainerService } from './container.service';
-import { InjectQueue } from '@nestjs/bull';
-import { Container } from '@prisma/client';
 import { DockerService } from './docker.service';
+
 @Injectable()
 export class AnalyticsService {
   constructor(
@@ -44,13 +41,17 @@ export class AnalyticsService {
   async containersLogger(containersIds: string[]): Promise<void> {
     for (let i = 0; i < containersIds.length; i++) {
       const containerId = containersIds[i];
-      const cpu=await this.containerService.getContainerCpu(containerId);
-      const [cpuUsage,memoryUsage] = await Promise.all([
-        this.dockerService.logCpuUsage(containerId,cpu),
+      const cpu = await this.containerService.getContainerCpu(containerId);
+      const [cpuUsage, memoryUsage] = await Promise.all([
+        this.dockerService.logCpuUsage(containerId, cpu),
         this.dockerService.logMemoryUsage(containerId),
       ]);
 
-      await this.logResourceUsage(containerId,parseInt(cpuUsage),parseInt(memoryUsage));
+      await this.logResourceUsage(
+        containerId,
+        parseInt(cpuUsage),
+        parseInt(memoryUsage),
+      );
     }
   }
 

@@ -2,16 +2,17 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 import { AnalyticsService } from './analytics.service';
 import { ContainerService } from './container.service';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class TasksService implements OnModuleInit {
-  private activeContainersIds: string[];
   private currentPage: number;
   private batchNumber: number;
   private numberOfActiveContainers: number;
   constructor(
-    private readonly analyticsService: AnalyticsService,
     private readonly containerService: ContainerService,
+    @InjectQueue('analytics') private readonly analyticsQueue: Queue,
   ) {}
 
   async onModuleInit() {
@@ -24,17 +25,17 @@ export class TasksService implements OnModuleInit {
         : Math.ceil(this.numberOfActiveContainers / (5 * 60));
   }
 
-  @Cron('45 * * * * *')
-  handleCron() {
-    console.log('heho');
-  }
-
   @Cron(CronExpression.EVERY_SECOND)
   async logContainersUsage() {
-    await this.analyticsService.containersDispatcher(
-      this.currentPage,
-      this.batchNumber,
-    );
+    try {
+      await this.analyticsQueue.add('handleContainerLogging', {
+        currentPage: this.currentPage,
+        batchNumber: this.batchNumber,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     if (this.currentPage * this.batchNumber >= this.numberOfActiveContainers) {
       this.currentPage = 0;
       return;
