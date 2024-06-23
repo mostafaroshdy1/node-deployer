@@ -100,4 +100,14 @@ export class ContainerRepository implements IContainerRepository {
     });
   }
 
+  async getContainerCpu(id: string): Promise<string> {
+    const container = await this.prisma.container.findUnique({
+      where: { id },
+      include: {
+        tier: true,
+      },
+    });
+    return container.tier.cpu;
+  }
+
 }

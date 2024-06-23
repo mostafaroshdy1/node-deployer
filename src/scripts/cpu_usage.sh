@@ -1,29 +1,21 @@
 #!/bin/bash
 
-# Check if container ID is provided as an argument
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <container_id>"
-    exit 1
+# Get container ID and number of cores assigned as arguments
+container_id=$1
+num_cores_assigned=$2
+
+# Get current CPU usage for the container (in percentage)
+cpu_usage=$(docker stats --no-stream --format "{{.CPUPerc}}" $container_id | tail -n 1 | cut -d'%' -f1)
+
+# Get total CPU cores available on the host
+total_cpu_cores=$(grep -c ^processor /proc/cpuinfo)
+
+# Check if the number of cores assigned is less than 1
+if (( $(echo "$num_cores_assigned < 1" | bc -l) )); then
+    cpu_usage_percentage=$cpu_usage
+else
+    # Calculate CPU usage based on assigned cores
+    cpu_usage_percentage=$(echo "scale=2; $cpu_usage / $num_cores_assigned" | bc)
 fi
 
-container_id="$1"
-
-# Check if the container ID exists
-docker inspect $container_id > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "Error: Container '$container_id' does not exist."
-    exit 1
-fi
-
-# Get total number of CPU cores
-num_cores=$(grep -c ^processor /proc/cpuinfo)
-
-# Get CPU usage of the container
-cpu_usage=$(docker stats --no-stream --format "{{.CPUPerc}}" $container_id)
-
-# Calculate average CPU usage across all cores
-average_cpu_usage=$(echo "$cpu_usage / $num_cores" | bc)
-
-# Print the CPU usage
-echo "Average CPU usage of container $container_id across $num_cores cores:"
-echo "${average_cpu_usage}%"
+echo "$cpu_usage_percentage"

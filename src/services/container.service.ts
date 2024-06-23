@@ -117,7 +117,7 @@ export class ContainerService {
 
   async findByImageId(imageId: string): Promise<Container[]> {
     return this.containerRepository.findByImageId(imageId);
-
+  }
 
   countActiveContainers(): Promise<number> {
     return this.containerRepository.countWhere({
@@ -132,5 +132,9 @@ export class ContainerService {
   ): Promise<Container[]> {
     return this.containerRepository.findWithPagination(where, skip, take);
 
+  }
+
+  async getContainerCpu(containerId: string): Promise<string> {
+    return this.containerRepository.getContainerCpu(containerId);
   }
 }

@@ -18,4 +18,5 @@ export interface IContainerRepository {
     skip: number,
     limit: number,
   ): Promise<Container[]>;
+  getContainerCpu(containerId: string): Promise<string>;
 }

@@ -26,7 +26,6 @@ export class AnalyticsService {
       memoryUsage,
     );
   }
-
   async getResourceUsage(
     containerId: string,
     start: string,
@@ -45,13 +44,13 @@ export class AnalyticsService {
   async containersLogger(containersIds: string[]): Promise<void> {
     for (let i = 0; i < containersIds.length; i++) {
       const containerId = containersIds[i];
-
-      const [memoryUsage] = await Promise.all([
-        // this.dockerService.logCpuUsage(containerId),
+      const cpu=await this.containerService.getContainerCpu(containerId);
+      const [cpuUsage,memoryUsage] = await Promise.all([
+        this.dockerService.logCpuUsage(containerId,cpu),
         this.dockerService.logMemoryUsage(containerId),
       ]);
 
-      await this.logResourceUsage(containerId, 650, parseInt(memoryUsage));
+      await this.logResourceUsage(containerId,parseInt(cpuUsage),parseInt(memoryUsage));
     }
   }
 
