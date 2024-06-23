@@ -8,6 +8,7 @@ import { RepoModule } from './modules/repo.module';
 import { TierModule } from './modules/tier.module';
 import { DeploymentModule } from './modules/deployment.module';
 import { AnalyticsModule } from './modules/analytics.module';
+import { DashboardModule } from './modules/dashboard.module';
 
 @Module({
   imports: [
@@ -18,9 +19,11 @@ import { AnalyticsModule } from './modules/analytics.module';
     UserModule,
     TierModule,
     RepoModule,
+    DashboardModule,
     DeploymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
+
 })
 export class AppModule {}
