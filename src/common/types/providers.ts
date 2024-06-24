@@ -6,6 +6,8 @@ const providers = {
 			redirect_uri: process.env.GITHUB_CALLBACK_URL,
 			scope: 'scope',
 		},
+		repoApi: 'https://api.github.com/user/repos',
+		userApi: 'https://api.github.com/user',
 	},
 	gitlab: {
 		rootUrl: 'https://gitlab.com/oauth/authorize',
@@ -15,6 +17,8 @@ const providers = {
 			scope: 'api read_api read_user sudo',
 			response_type: 'code',
 		},
+		repoApi: 'https://gitlab.com/api/v4/projects?owned=true',
+		userApi: 'https://gitlab.com/api/v4/user',
 	},
 };
 
