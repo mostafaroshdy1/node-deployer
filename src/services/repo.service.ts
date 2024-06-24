@@ -17,16 +17,19 @@ export class RepoService {
     private readonly dockerImageService: DockerImageService,
   ) {}
 
-  async findAll(): Promise<Repo[]> {
+  findAll(): Promise<Repo[]> {
     return this.repoRepository.findAll();
   }
 
-  async findById(id: string): Promise<Repo | null> {
+  findWhere(where: Prisma.RepoWhereInput): Promise<Repo[]> {
+    return this.repoRepository.findAllWhere(where);
+  }
+
+  findById(id: string): Promise<Repo | null> {
     return this.repoRepository.findById(id);
   }
 
-  async create(data: Prisma.RepoCreateInput): Promise<Repo> {
-    // await this.dockerService.cloneRepo(data.url);
+  create(data: Prisma.RepoCreateInput): Promise<Repo> {
     return this.repoRepository.create(data);
   }
 

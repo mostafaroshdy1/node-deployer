@@ -14,6 +14,11 @@ export class RepoRepository implements IRepoRepository {
       },
     });
   }
+  findAllWhere(where: Prisma.RepoWhereInput): Promise<Repo[]> {
+    return this.prisma.repo.findMany({
+      where,
+    });
+  }
 
   findById(id: string): Promise<Repo | null> {
     return this.prisma.repo.findUnique({ where: { id } });
