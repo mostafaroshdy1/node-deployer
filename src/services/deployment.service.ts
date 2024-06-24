@@ -97,4 +97,26 @@ export class DeploymentService {
       console.error(error);
     }
   }
+
+  async findByContainersByUserId(userId: string): Promise<Container[]> {
+    try {
+      const repoIds = await this.repoService.findWhere({ userId });
+      const images: DockerImage[] = [];
+      for (let i = 0; i < repoIds.length; i++) {
+        const image = await this.dockerImageService.findByRepoId(repoIds[i].id);
+        images.push(image);
+      }
+      const containers: Container[] = [];
+      for (let i = 0; i < images.length; i++) {
+        const container = await this.containerService.findByImageId(
+          images[i].id,
+        );
+        containers.push(...container);
+      }
+
+      return containers;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }

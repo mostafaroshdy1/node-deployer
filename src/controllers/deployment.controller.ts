@@ -1,14 +1,22 @@
-import { Body, Controller, Post, Delete, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Delete,
+  Param,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { Container } from '@prisma/client';
 import { DeploymentService } from 'src/services/deployment.service';
 import { ContainerService } from 'src/services/container.service';
+import { DynamicAuthGuard } from 'src/common/guards/dynamic-auth.guard';
 
 @Controller('deploy')
 export class DeploymentController {
   constructor(
     private readonly deploymentService: DeploymentService,
     private readonly containerService: ContainerService,
-
   ) {}
 
   // The user buys new container
@@ -31,6 +39,15 @@ export class DeploymentController {
     const ipAddress = container.ip + ':' + container.port;
     return { ipAddress };
   }
+
+  @Get('container')
+  async getContainer(@Param('userId') userId: string): Promise<Container[]> {
+    const userIdTemp = '667865ac43667afc84a06e63';
+    const container =
+      await this.deploymentService.findByContainersByUserId(userIdTemp);
+    return container;
+  }
+
   @Post('container/redeploy')
   async redeployContainer(
     @Body()
@@ -44,7 +61,6 @@ export class DeploymentController {
       body.userId,
     );
     return containers;
-    
   }
   @Delete('container/:containerId')
   async deleteContainer(
@@ -68,5 +84,4 @@ export class DeploymentController {
     const container = await this.containerService.resumeContainer(containerId);
     return { containerId: container.id };
   }
-
 }
