@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Strategy as GitHubStrategy } from 'passport-github';
 import { AuthService } from '../services/auth.service';
 import { PassportStrategy } from '@nestjs/passport';
@@ -22,15 +22,7 @@ export class GithubStrategy extends PassportStrategy(GitHubStrategy, 'github') {
     // eslint-disable-next-line @typescript-eslint/ban-types
     done: Function,
   ): Promise<any> {
-    if (!accessToken || !refreshToken) {
-      return done(new UnauthorizedException('Invalid tokens'), null);
-    }
-
-    const user = await this.authService.validateUser(
-      profile,
-      accessToken,
-      refreshToken,
-    );
+    const user = await this.authService.validateUser(profile, accessToken);
 
     return done(null, user);
   }

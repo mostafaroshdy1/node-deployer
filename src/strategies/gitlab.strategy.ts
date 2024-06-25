@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Strategy as PassportGitLabStrategy } from 'passport-gitlab2';
 import { AuthService } from '../services/auth.service';
 import { PassportStrategy } from '@nestjs/passport';
@@ -28,17 +28,10 @@ export class GitLabStrategy extends PassportStrategy(
     // eslint-disable-next-line @typescript-eslint/ban-types
     done: Function,
   ): Promise<any> {
-    if (!accessToken || !refreshToken) {
-      return done(new UnauthorizedException('Invalid tokens'), null);
-    }
     // this.logger.debug(`Access Token: ${accessToken}`);
     // this.logger.debug(`Profile: ${JSON.stringify(profile)}`);
 
-    const user = await this.authService.validateUser(
-      profile,
-      accessToken,
-      refreshToken,
-    );
+    const user = await this.authService.validateUser(profile, accessToken);
     // console.log(accessToken);
     return done(null, user);
   }
