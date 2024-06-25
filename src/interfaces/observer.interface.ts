@@ -1,3 +1,3 @@
 export interface Observer {
-  update(event: string): void;
+  update(event: string): string;
 }

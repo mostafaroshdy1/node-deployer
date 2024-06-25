@@ -18,9 +18,9 @@ export class DashboardService {
     }
   }
 
-  notifyObservers(event: string): void {
+  notifyObservers(event: string): string {
     for (const observer of this.observers) {
-      observer.update(event);
+      return observer.update(event);
     }
   }
 
