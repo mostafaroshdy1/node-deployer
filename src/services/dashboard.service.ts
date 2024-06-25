@@ -21,9 +21,9 @@ export class DashboardService {
     }
   }
 
-  notifyObservers(event: string): void {
+  notifyObservers(event: string): string {
     for (const observer of this.observers) {
-      observer.update(event);
+      return observer.update(event);
     }
   }
 
@@ -79,6 +79,20 @@ export class DashboardService {
     webhookUrl: string,
   ) {
     try {
+
+      const webhookData = {
+        url: webhookUrl,
+        push_events: true,
+      };
+      const response = await axios.post(
+        `https://${provider}.com/api/v4/projects/${repoId}/hooks`,
+        webhookData,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      // console.log(response.data);
+
       const providerStrategy = new ProviderStrategy();
       let providerStrategyWebhook!: ProviderInterface;
       if (provider === 'github') {
@@ -92,6 +106,7 @@ export class DashboardService {
 
       providerStrategy.setStrategy(providerStrategyWebhook);
       const response: AxiosResponse = await providerStrategy.addWebHook(webhookUrl, repoId, accessToken)
+
       return response.data;
     } catch (error) {
       console.error(

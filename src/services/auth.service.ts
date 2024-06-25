@@ -4,8 +4,8 @@ import { UserService } from './user.service';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from 'src/entities/user.entity';
 import axios from 'axios';
+import { UserEntity } from 'src/entities/user.entity';
 import providers from 'src/common/types/providers';
 
 @Injectable()
@@ -15,49 +15,52 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 	) {}
 
-	async validateUser(profile: Profile, accessToken: string): Promise<User | null> {
-		const { id, username, displayName, emails, provider } = profile;
-		const email: string = emails[0].value;
-		const foundUser = await this.userService.findByEmailAndProvider(email, provider);
+  async validateUser(
+    profile: Profile,
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<User | null> {
+    const { id, username, displayName, emails, provider } = profile;
+    const email: string = emails[0].value;
 
-		if (foundUser) {
-			foundUser.accessToken = accessToken;
-			return await this.userService.update(foundUser.id, { accessToken });
-		}
+    let user = await this.userService.findByEmailAndProvider(email, provider);
 
-		const user: CreateUserDto = {
-			provider: provider,
-			providerId: id,
-			username: username,
-			name: displayName,
-			email: emails[0].value,
-			accessToken: accessToken,
-		};
-		return this.userService.create(user);
-	}
+    if (user) {
+      user = await this.userService.update(user.id, {
+        accessToken,
+        refreshToken,
+      });
+    } else {
+      const newUser: CreateUserDto = {
+        provider: provider,
+        providerId: id,
+        username: username,
+        name: displayName,
+        email: emails[0].value,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+      user = await this.userService.create(newUser);
+    }
 
-	async createJwtTokens(
-		user: UserEntity,
-		scope: string,
-	): Promise<{ access_token: string; refresh_token: string }> {
-		const payload = {
-			id: user.id,
-			email: user.email,
-			scope: scope,
-		};
-		const [access_token, refresh_token] = await Promise.all([
-			this.jwtService.signAsync(payload, {
-				expiresIn: process.env.JWT_EXPIRATION,
-			}),
-			this.jwtService.signAsync(payload, {
-				expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
-			}),
-		]);
-		return {
-			access_token,
-			refresh_token,
-		};
-	}
+    return user;
+  }
+
+  async createJwtTokens(user: UserEntity): Promise<{ access_token: string }> {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+    };
+    const [access_token] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }),
+    ]);
+    return { access_token };
+  }
+
 
 	async getGitLabRepos(accessToken: string) {
 		try {
@@ -97,5 +100,45 @@ export class AuthService {
 		const queryString = new URLSearchParams(options).toString();
 		return `${rootUrl}?${queryString}`;
 	}
+
+
+  async getGitLabUser(accessToken: string) {
+    try {
+      const response = await axios.get('https://gitlab.com/api/v4/user', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching GitLab user:', error.response.data);
+      throw new InternalServerErrorException(
+        'Failed to fetch GitLab user: ' + error.response.data.error_description,
+      );
+    }
+  }
+
+  // async refreshAccessToken(
+  //   refreshToken: string,
+  // ): Promise<{ accessToken: string; refreshToken: string }> {
+  //   try {
+
+  //     const response = await axios.post('https://gitlab.com/oauth/token', {
+  //       grant_type: 'refresh_token',
+  //       refresh_token: refreshToken,
+  //       client_id: process.env.GITLAB_CLIENT_ID,
+  //       client_secret: process.env.GITLAB_CLIENT_SECRET,
+  //     });
+
+  //     const newAccessToken = response.data.access_token;
+  //     const newRefreshToken = response.data.refresh_token;
+
+  //     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  //   } catch (error) {
+  //     console.error(
+  //       'Error refreshing access token:',
+  //       error.response?.data || error.message,
+  //     );
+  //     throw new InternalServerErrorException('Failed to refresh access token');
+  //   }
+  // }
 
 }
