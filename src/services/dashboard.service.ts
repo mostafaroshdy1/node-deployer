@@ -1,6 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import axios from 'axios';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import axios, { AxiosResponse } from 'axios';
 import { Observer } from '../interfaces/observer.interface';
+import providers from 'src/common/types/providers';
+import { ProviderStrategy,  GithubWebhook, GitlabWebhook } from 'src/strategies/Provider.strategy';
+import ProviderInterface from 'src/interfaces/Provider.interface';
 
 @Injectable()
 export class DashboardService {
@@ -25,11 +28,11 @@ export class DashboardService {
   }
 
   async getProviderRepos(provider: string, accessToken: string) {
+    const {repoApi: url} = providers[provider]
     try {
       const response = await axios.get(
-        `https://${provider}.com/api/v4/projects`,
+            url,
         {
-          params: { owned: true },
           headers: { Authorization: `Bearer ${accessToken}` },
         },
       );
@@ -49,8 +52,9 @@ export class DashboardService {
   }
 
   async getProviderUser(provider: string, accessToken: string) {
+    const {userApi: url} = providers[provider]
     try {
-      const response = await axios.get(`https://${provider}.com/api/v4/user`, {
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       return response.data;
@@ -71,10 +75,11 @@ export class DashboardService {
   async addWebhookToRepo(
     provider: string,
     accessToken: string,
-    repoId: number,
+    repoId: number | string,
     webhookUrl: string,
   ) {
     try {
+
       const webhookData = {
         url: webhookUrl,
         push_events: true,
@@ -87,6 +92,21 @@ export class DashboardService {
         },
       );
       // console.log(response.data);
+
+      const providerStrategy = new ProviderStrategy();
+      let providerStrategyWebhook!: ProviderInterface;
+      if (provider === 'github') {
+        providerStrategyWebhook = new GithubWebhook() 
+      } else if (provider === 'gitlab') {
+        providerStrategyWebhook = new GitlabWebhook() 
+      } else {
+        throw new BadRequestException();
+      }
+
+
+      providerStrategy.setStrategy(providerStrategyWebhook);
+      const response: AxiosResponse = await providerStrategy.addWebHook(webhookUrl, repoId, accessToken)
+
       return response.data;
     } catch (error) {
       console.error(

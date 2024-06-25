@@ -74,11 +74,36 @@ export class DashboardController {
     }
   }
 
+  @Post(':provider/webhooks/:repoId')
+  async addWebhooksToRebo(
+    @Param('provider') provider: string,
+    @Param('repoId') repoId: number | string,
+    @Body('webhookUrl') webhookUrl: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const accessToken = req.headers.authorization.split(' ')[1];
+
+    try {
+      const results = await this.dashboardService.addWebhookToRepo(
+        provider,
+        accessToken,
+        repoId,
+        webhookUrl,
+      );
+      return res.json(results);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+
   @Post('/webhook')
   async handleWebhook(@Body() body: any, @Res() res: Response) {
     console.log('Received webhook event:', body);
     // save to database
-    this.dashboardService.notifyObservers(body);
-    res.status(200).send('Webhook received');
+    // this.dashboardService.notifyObservers(body);
+    // res.status(200).send('Webhook received');
+    console.log(body)
   }
 }

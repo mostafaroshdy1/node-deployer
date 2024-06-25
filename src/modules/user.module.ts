@@ -9,12 +9,11 @@ import { UserRepository } from 'src/repositories/user.repository';
   providers: [
     UserService,
     PrismaService,
-    UserRepository,
     {
       provide: 'IUserRepository',
       useClass: UserRepository,
     },
   ],
-  exports:[UserService],
+  exports: [UserService],
 })
 export class UserModule {}
