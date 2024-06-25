@@ -24,7 +24,9 @@ export class RepoService {
   findWhere(where: Prisma.RepoWhereInput): Promise<
     Array<
       Prisma.RepoGetPayload<{
-        include: { dockerImage: { include: { Containers: true } } };
+        include: {
+          dockerImage: { include: { Containers: { include: { tier: true } } } };
+        };
       }>
     >
   > {

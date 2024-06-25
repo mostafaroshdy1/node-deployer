@@ -69,11 +69,21 @@ export class DeploymentController {
     const container = await this.containerService.remove(containerId);
     return container;
   }
+
   @Post('container/stop/:containerId')
   async stopContainer(
     @Param('containerId') containerId: string,
   ): Promise<{ containerId: string }> {
     const container = await this.containerService.stopContainer(containerId);
+    return { containerId: container.id };
+  }
+
+  @Post('container/restart/:containerId')
+  async restartContainer(
+    @Param('containerId') containerId: string,
+  ): Promise<{ containerId: string }> {
+    await this.containerService.stopContainer(containerId);
+    const container = await this.containerService.resumeContainer(containerId);
     return { containerId: container.id };
   }
 
