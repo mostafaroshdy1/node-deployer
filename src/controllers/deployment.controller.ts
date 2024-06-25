@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Post, Delete, Param ,Get} from '@nestjs/common';
 import { Container } from '@prisma/client';
 import { DeploymentService } from 'src/services/deployment.service';
 import { ContainerService } from 'src/services/container.service';
@@ -67,6 +67,13 @@ export class DeploymentController {
   ): Promise<{ containerId: string }> {
     const container = await this.containerService.resumeContainer(containerId);
     return { containerId: container.id };
+  }
+  @Get('container/logs/:containerId')
+  async getContainerLogs(
+    @Param('containerId') containerId: string,
+  ): Promise<{ logs: any }> {
+    const logs = await this.containerService.getContainerLogs(containerId);
+    return JSON.parse(logs);
   }
 
 }

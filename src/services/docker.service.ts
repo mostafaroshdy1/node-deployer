@@ -101,4 +101,7 @@ export class DockerService {
   logCpuUsage(containerId: string, cpu:string): Promise<string> {
     return this.runScript('cpu_usage.sh', [containerId, cpu]);
   }
+  getContainerLogs(containerId: string): Promise<string> {
+    return this.runScript('get_container_logs.sh', [containerId]);
+  }
 }
