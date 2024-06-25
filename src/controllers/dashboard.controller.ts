@@ -59,7 +59,7 @@ export class DashboardController {
 
   @Post('/webhook')
   async handleWebhook(@Body() body: any, @Res() res: Response) {
-    // console.log('Received webhook event:', body);
+    console.log('Received webhook event:', body);
     // save to database
     this.dashboardService.notifyObservers(body);
     res.status(200).send('Webhook received');

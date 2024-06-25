@@ -86,6 +86,7 @@ export class DashboardService {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
       );
+      // console.log(response.data);
       return response.data;
     } catch (error) {
       console.error(
