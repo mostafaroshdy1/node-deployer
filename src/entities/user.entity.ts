@@ -25,8 +25,11 @@ export class UserEntity implements User {
   @ApiProperty()
   accessToken: string;
 
+  @ApiProperty()
+  refreshToken: string;
+
   @Exclude()
-  repos: any[];
+  repos?: any[];
 
   @Exclude()
   role: Role;
