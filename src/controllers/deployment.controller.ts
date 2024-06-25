@@ -7,7 +7,7 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
-import { Container } from '@prisma/client';
+import { Container, Repo } from '@prisma/client';
 import { DeploymentService } from 'src/services/deployment.service';
 import { ContainerService } from 'src/services/container.service';
 import { DynamicAuthGuard } from 'src/common/guards/dynamic-auth.guard';
@@ -41,10 +41,10 @@ export class DeploymentController {
   }
 
   @Get('container')
-  async getContainer(@Param('userId') userId: string): Promise<Container[]> {
+  async getContainer(@Param('userId') userId: string): Promise<Repo[]> {
     const userIdTemp = '667865ac43667afc84a06e63';
     const container =
-      await this.deploymentService.findByContainersByUserId(userIdTemp);
+      await this.deploymentService.findAllContainersByUserId(userIdTemp);
     return container;
   }
 

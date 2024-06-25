@@ -7,5 +7,11 @@ export interface IRepoRepository {
   create(data: Prisma.RepoCreateInput): Promise<Repo>;
   update(id: string, data: Prisma.RepoUpdateInput): Promise<Repo>;
   remove(id: string): Promise<Repo>;
-  findAllWhere(where: Prisma.RepoWhereInput): Promise<Repo[]>;
+  findAllWhere(where: Prisma.RepoWhereInput): Promise<
+    Array<
+      Prisma.RepoGetPayload<{
+        include: { dockerImage: { include: { Containers: true } } };
+      }>
+    >
+  >;
 }

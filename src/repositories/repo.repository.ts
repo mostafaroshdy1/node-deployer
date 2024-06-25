@@ -14,9 +14,24 @@ export class RepoRepository implements IRepoRepository {
       },
     });
   }
-  findAllWhere(where: Prisma.RepoWhereInput): Promise<Repo[]> {
+  findAllWhere(
+    where: Prisma.RepoWhereInput,
+  ): Promise<
+    Array<
+      Prisma.RepoGetPayload<{
+        include: { dockerImage: { include: { Containers: true } } };
+      }>
+    >
+  > {
     return this.prisma.repo.findMany({
       where,
+      include: {
+        dockerImage: {
+          include: {
+            Containers: true,
+          },
+        },
+      },
     });
   }
 

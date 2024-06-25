@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { RepoService } from './repo.service';
-import { Container, DockerImage } from '@prisma/client';
+import { Container, DockerImage, Repo } from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
 import { TierService } from './tier.service';
 import { UserService } from './user.service';
@@ -98,25 +98,7 @@ export class DeploymentService {
     }
   }
 
-  async findByContainersByUserId(userId: string): Promise<Container[]> {
-    try {
-      const repoIds = await this.repoService.findWhere({ userId });
-      const images: DockerImage[] = [];
-      for (let i = 0; i < repoIds.length; i++) {
-        const image = await this.dockerImageService.findByRepoId(repoIds[i].id);
-        images.push(image);
-      }
-      const containers: Container[] = [];
-      for (let i = 0; i < images.length; i++) {
-        const container = await this.containerService.findByImageId(
-          images[i].id,
-        );
-        containers.push(...container);
-      }
-
-      return containers;
-    } catch (error) {
-      console.error(error);
-    }
+  async findAllContainersByUserId(userId: string): Promise<Repo[]> {
+    return this.repoService.findWhere({ userId });
   }
 }

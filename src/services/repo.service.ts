@@ -21,7 +21,13 @@ export class RepoService {
     return this.repoRepository.findAll();
   }
 
-  findWhere(where: Prisma.RepoWhereInput): Promise<Repo[]> {
+  findWhere(where: Prisma.RepoWhereInput): Promise<
+    Array<
+      Prisma.RepoGetPayload<{
+        include: { dockerImage: { include: { Containers: true } } };
+      }>
+    >
+  > {
     return this.repoRepository.findAllWhere(where);
   }
 
