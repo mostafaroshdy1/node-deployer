@@ -20,9 +20,6 @@ export class CreateEnvVariablesDto {
   url: string;
 
   @IsString()
-  userId: string;  
-
-  @IsString()
   event: string;
 
   @IsArray()
