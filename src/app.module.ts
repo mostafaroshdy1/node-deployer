@@ -10,6 +10,8 @@ import { DeploymentModule } from './modules/deployment.module';
 import { AnalyticsModule } from './modules/analytics.module';
 import { ContainersInitializerService } from './services/containers.initializer.service';
 import { DashboardModule } from './modules/dashboard.module';
+import { StripeModule } from './stripe/stripe.module';
+
 
 
 @Module({
@@ -23,6 +25,7 @@ import { DashboardModule } from './modules/dashboard.module';
     RepoModule,
     DashboardModule,
     DeploymentModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService, ContainersInitializerService],
