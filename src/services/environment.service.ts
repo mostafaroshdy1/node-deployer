@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateEnvVariablesDto } from '../dtos/env-variable.dto';
-import { RepoService } from './repo.service';
-
 @Injectable()
 export class EnvironmentService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly repoService: RepoService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async saveEnvironmentVariables(
     createEnvVariablesDto: CreateEnvVariablesDto,
@@ -26,37 +21,39 @@ export class EnvironmentService {
 
     const existingRepo = await this.prisma.repo.findUnique({
       where: {
-        id: repoId,
-        userId: userId,
+        repoId,
+        userId,
       },
     });
 
     if (existingRepo) {
       const updatedRepo = await this.prisma.repo.update({
         where: {
-          id: repoId,
+          repoId,
         },
         data: {
-          name: name,
-          url: url,
-          event: event,
+          name,
+          url,
+          event,
           env: envVariables,
           updatedAt: new Date(),
         },
       });
       return updatedRepo;
     } else {
-      const newRepo1 = await this.repoService.create({
-        name: name,
-        url: url,
-        user: {
-          connect: { id: userId },
+      const newRepo = await this.prisma.repo.create({
+        data: {
+          repoId,
+          name,
+          url,
+          userId,
+          event,
+          env: envVariables,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
-        event: event,
-        env: envVariables,
       });
-
-      return newRepo1;
+      return newRepo;
     }
   }
 }

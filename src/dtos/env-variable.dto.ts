@@ -1,4 +1,4 @@
-import { IsString, IsArray, ValidateNested, IsMongoId } from 'class-validator';
+import { IsString, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class EnvVariableDto {
@@ -10,7 +10,7 @@ class EnvVariableDto {
 }
 
 export class CreateEnvVariablesDto {
-  @IsMongoId()
+  @IsString()
   repoId: string;
 
   @IsString()
