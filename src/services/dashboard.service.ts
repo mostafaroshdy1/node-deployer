@@ -1,8 +1,16 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 import { Observer } from '../interfaces/observer.interface';
 import providers from 'src/common/types/providers';
-import { ProviderStrategy,  GithubWebhook, GitlabWebhook } from 'src/strategies/Provider.strategy';
+import {
+  ProviderStrategy,
+  GithubWebhook,
+  GitlabWebhook,
+} from 'src/strategies/Provider.strategy';
 import ProviderInterface from 'src/interfaces/Provider.interface';
 
 @Injectable()
@@ -28,14 +36,11 @@ export class DashboardService {
   }
 
   async getProviderRepos(provider: string, accessToken: string) {
-    const {repoApi: url} = providers[provider]
+    const { repoApi: url } = providers[provider];
     try {
-      const response = await axios.get(
-            url,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       return response.data;
     } catch (error) {
       console.error(
@@ -52,7 +57,7 @@ export class DashboardService {
   }
 
   async getProviderUser(provider: string, accessToken: string) {
-    const {userApi: url} = providers[provider]
+    const { userApi: url } = providers[provider];
     try {
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -79,32 +84,22 @@ export class DashboardService {
     webhookUrl: string,
   ) {
     try {
-
-      const webhookData = {
-        url: webhookUrl,
-        push_events: true,
-      };
-      const response = await axios.post(
-        `https://${provider}.com/api/v4/projects/${repoId}/hooks`,
-        webhookData,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
-      // console.log(response.data);
       const providerStrategy = new ProviderStrategy();
       let providerStrategyWebhook!: ProviderInterface;
       if (provider === 'github') {
-        providerStrategyWebhook = new GithubWebhook() 
+        providerStrategyWebhook = new GithubWebhook();
       } else if (provider === 'gitlab') {
-        providerStrategyWebhook = new GitlabWebhook() 
+        providerStrategyWebhook = new GitlabWebhook();
       } else {
         throw new BadRequestException();
       }
 
-
       providerStrategy.setStrategy(providerStrategyWebhook);
-      const response: AxiosResponse = await providerStrategy.addWebHook(webhookUrl, repoId, accessToken)
+      const response: AxiosResponse = await providerStrategy.addWebHook(
+        webhookUrl,
+        repoId,
+        accessToken,
+      );
       return response.data;
     } catch (error) {
       console.error(

@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateEnvVariablesDto } from '../dtos/env-variable.dto';
+import { RepoService } from './repo.service';
 
 @Injectable()
 export class EnvironmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly repoService: RepoService,
+  ) {}
 
   async saveEnvironmentVariables(
     createEnvVariablesDto: CreateEnvVariablesDto,
@@ -42,19 +46,17 @@ export class EnvironmentService {
       });
       return updatedRepo;
     } else {
-      const newRepo = await this.prisma.repo.create({
-        data: {
-          id: repoId,
-          name: name,
-          url: url,
-          userId: userId,
-          event: event,
-          env: envVariables,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+      const newRepo1 = await this.repoService.create({
+        name: name,
+        url: url,
+        user: {
+          connect: { id: userId },
         },
+        event: event,
+        env: envVariables,
       });
-      return newRepo;
+
+      return newRepo1;
     }
   }
 }

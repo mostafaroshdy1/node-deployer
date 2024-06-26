@@ -25,7 +25,6 @@ enum DockerStatus {
 }
 
 model User {
-
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   email        String
   name         String
@@ -36,6 +35,7 @@ model User {
   refreshToken String
   repos        Repo[]
   role         Role     @default(USER)
+  balance      Float    @default(25)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -47,10 +47,11 @@ model Repo {
   url         String       @unique
   user        User         @relation(fields: [userId], references: [id])
   userId      String       @db.ObjectId
+  name        String
   dockerImage DockerImage?
   event       String?
   env         String?
-  nodeVersion String
+  nodeVersion String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
