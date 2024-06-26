@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Optional } from '@nestjs/common';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -27,7 +28,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   accessToken: string;
 
+
   @ApiProperty()
   @IsNotEmpty()
   refreshToken: string;
+
+  // balance: number;
+
 }

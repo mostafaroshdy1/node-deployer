@@ -6,13 +6,16 @@ import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { UserEntity } from 'src/entities/user.entity';
+import providers from 'src/common/types/providers';
+
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly jwtService: JwtService,
+	) {}
+
 
   async validateUser(
     profile: Profile,
@@ -60,35 +63,45 @@ export class AuthService {
     return { access_token };
   }
 
-  async getGitLabRepos(accessToken: string) {
-    try {
-      const response = await axios.get('https://gitlab.com/api/v4/projects', {
-        params: { owned: true },
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching GitLab repositories:', error.response.data);
-      throw new InternalServerErrorException(
-        'Failed to fetch GitLab repositories: ' +
-          error.response.data.error_description,
-      );
-    }
-  }
 
-  async getGitLabUser(accessToken: string) {
-    try {
-      const response = await axios.get('https://gitlab.com/api/v4/user', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching GitLab user:', error.response.data);
-      throw new InternalServerErrorException(
-        'Failed to fetch GitLab user: ' + error.response.data.error_description,
-      );
-    }
-  }
+	async getGitLabRepos(accessToken: string) {
+		try {
+			const response = await axios.get('https://gitlab.com/api/v4/projects', {
+				params: { owned: true },
+				headers: { Authorization: `Bearer ${accessToken}` },
+			});
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching GitLab repositories:', error.response.data);
+			throw new InternalServerErrorException(
+				'Failed to fetch GitLab repositories: ' + error.response.data.error_description,
+			);
+		}
+	}
+
+	async getGitLabUser(accessToken: string) {
+		try {
+			const response = await axios.get('https://gitlab.com/api/v4/user', {
+				headers: { Authorization: `Bearer ${accessToken}` },
+			});
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching GitLab user:', error.response.data);
+			throw new InternalServerErrorException(
+				'Failed to fetch GitLab user: ' + error.response.data.error_description,
+			);
+		}
+	}
+
+	async getRedirectUrl(provider: string) {
+		if (!providers[provider]) {
+			throw new Error(`Unsupported provider: ${provider}`);
+		}
+
+		const { rootUrl, options } = providers[provider];
+		const queryString = new URLSearchParams(options).toString();
+		return `${rootUrl}?${queryString}`;
+	}
 
   // async refreshAccessToken(
   //   refreshToken: string,
@@ -114,4 +127,5 @@ export class AuthService {
   //     throw new InternalServerErrorException('Failed to refresh access token');
   //   }
   // }
+
 }
