@@ -18,12 +18,18 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
-  async findByEmailAndProvider(email: string, provider: string): Promise<User | null> {
+  async findByEmailAndProvider(
+    email: string,
+    provider: string,
+  ): Promise<User | null> {
     return this.userRepository.findByEmailAndProvider(email, provider);
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    const foundUser = await this.findByEmailAndProvider(data.email, data.provider);
+    const foundUser = await this.findByEmailAndProvider(
+      data.email,
+      data.provider,
+    );
     if (foundUser) {
       throw new BadRequestException('Email already exists for this provider');
     }
