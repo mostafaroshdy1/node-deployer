@@ -23,7 +23,7 @@ export class AuthController {
     res
       .status(302)
       .redirect(
-        `${process.env.FRONT_END_URL}/auth/callback?access_token=${tokens.access_token}&provider=${req.params.provider}`,
+        `${process.env.FRONT_END_URL}/auth/callback?jwt=${tokens.access_token}&provider=${req.params.provider}`,
       );
   }
 
