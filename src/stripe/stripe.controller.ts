@@ -10,11 +10,13 @@ export class StripeController {
 
   @Post('stripe')
   async createCheckoutSession(@Body() createStripeDto: CreateStripeDto) {
-    return this.stripeService.createCheckoutSession(createStripeDto);
+    const paymentUrl = (await this.stripeService.createCheckoutSession(createStripeDto)).url;
+    return paymentUrl;
   }
 
   @Post('webhook')
   async handleWebhook(@Req() req: Request, @Res() res: Response) {
+    console.log('We are in webhook');
     try {
       const result = await this.stripeService.handleWebhook(req);
       res.json(result);
