@@ -6,11 +6,15 @@ import {
   Param,
   Get,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Container, Repo } from '@prisma/client';
 import { DeploymentService } from 'src/services/deployment.service';
 import { ContainerService } from 'src/services/container.service';
-import { DynamicAuthGuard } from 'src/common/guards/dynamic-auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { CustomRequest } from 'src/interfaces/custom-request.interface';
+import { IsOwnerGuard } from 'src/common/guards/isOwner.guard';
 
 @Controller('deploy')
 export class DeploymentController {
@@ -41,10 +45,11 @@ export class DeploymentController {
   }
 
   @Get('container')
-  async getContainer(@Param('userId') userId: string): Promise<Repo[]> {
-    const userIdTemp = '667865ac43667afc84a06e63';
+  @UseGuards(JwtAuthGuard)
+  async getContainer(@Req() req: CustomRequest): Promise<Repo[]> {
+    const { userId } = req;
     const container =
-      await this.deploymentService.findAllContainersByUserId(userIdTemp);
+      await this.deploymentService.findAllContainersByUserId(userId);
     return container;
   }
 
@@ -62,7 +67,9 @@ export class DeploymentController {
     );
     return containers;
   }
+
   @Delete('container/:containerId')
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
   async deleteContainer(
     @Param('containerId') containerId: string,
   ): Promise<Container> {
@@ -71,14 +78,17 @@ export class DeploymentController {
   }
 
   @Post('container/stop/:containerId')
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
   async stopContainer(
     @Param('containerId') containerId: string,
+    @Req() req: CustomRequest,
   ): Promise<{ containerId: string }> {
     const container = await this.containerService.stopContainer(containerId);
     return { containerId: container.id };
   }
 
   @Post('container/restart/:containerId')
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
   async restartContainer(
     @Param('containerId') containerId: string,
   ): Promise<{ containerId: string }> {
@@ -88,6 +98,7 @@ export class DeploymentController {
   }
 
   @Post('container/resume/:containerId')
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
   async resumeContainer(
     @Param('containerId') containerId: string,
   ): Promise<{ containerId: string }> {
