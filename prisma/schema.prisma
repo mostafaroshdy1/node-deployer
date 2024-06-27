@@ -48,6 +48,7 @@ model Repo {
   user        User         @relation(fields: [userId], references: [id])
   userId      String       @db.ObjectId
   name        String?
+  repoId      String       @unique
   dockerImage DockerImage?
   event       String?
   env         String?
