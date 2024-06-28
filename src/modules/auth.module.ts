@@ -7,9 +7,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/controllers/auth.controller';
 import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
 import { JwtStrategy } from 'src/strategies/jwt.strategy';
+import { DashboardModule } from './dashboard.module';
 
 @Module({
   imports: [
+    DashboardModule,
     UserModule,
     PassportModule,
     JwtModule.register({
