@@ -5,9 +5,10 @@ import { RepoRepository } from '../repositories/repo.repository';
 import { RepoService } from 'src/services/repo.service';
 import { DockerImageModule } from './dockerImage.module';
 import { ContainerModule } from './container.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [DockerImageModule, ContainerModule],
+  imports: [DockerImageModule, ContainerModule, AuthModule],
   providers: [
     PrismaService,
     DockerService,
