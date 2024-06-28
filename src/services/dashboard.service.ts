@@ -20,8 +20,9 @@ export class DashboardService {
 
   notifyObservers(event: string): string {
     for (const observer of this.observers) {
-      return observer.update(event);
+      observer.update(event);
     }
+    return 'done';
   }
 
   async getProviderRepos(provider: string, accessToken: string) {
@@ -152,7 +153,7 @@ export class DashboardService {
       return results;
     } catch (error) {
       console.error(
-        `Error adding webhooks to all ${provider} repositories:`+ error
+        `Error adding webhooks to all ${provider} repositories:` + error,
       );
       throw new InternalServerErrorException(
         `Failed to add webhooks to all ${provider} repositories: ` + error,

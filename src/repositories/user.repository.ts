@@ -16,7 +16,10 @@ export class UserRepository implements IUserRepository {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  findByEmailAndProvider(email: string, provider: string): Promise<User | null> {
+  findByEmailAndProvider(
+    email: string,
+    provider: string,
+  ): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: {
         email_provider: {
@@ -37,5 +40,8 @@ export class UserRepository implements IUserRepository {
 
   remove(id: string): Promise<User> {
     return this.prisma.user.delete({ where: { id } });
+  }
+  findWhere(data: Prisma.UserWhereInput): Promise<User | null> {
+    return this.prisma.user.findFirst({ where: data });
   }
 }

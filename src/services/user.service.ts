@@ -47,4 +47,7 @@ export class UserService {
   async remove(id: string): Promise<User> {
     return this.userRepository.remove(id);
   }
+  findWhere(data: Prisma.UserWhereInput): Promise<User | null> {
+    return this.userRepository.findWhere(data);
+  }
 }
