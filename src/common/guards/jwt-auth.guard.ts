@@ -14,29 +14,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<CustomRequest>();
+    const authHeader = request.headers['authorization'];
 
-    const token = request.headers['authorization']?.replace('Bearer ', '');
-    console.log('Extracted token:', token);
+    if (!authHeader) {
+      console.error('Authorization header missing');
+      return false;
+    }
 
-    if (token) {
-      try {
-        const { id, accessToken } = this.jwtService.verify(token);
-        console.log('Decoded token id:', id);
-        console.log('Decoded token accessToken:', accessToken);
+    const token = authHeader.replace('Bearer ', '');
 
-        request.accessToken = accessToken;
-        request.userId = id.toString();
-
-        // if (typeof request.userId === 'string') {
-        //   console.log('userId is a string:', request.userId);
-        // } else {
-        //   console.log('userId is not a string:', request.userId);
-        // }
-
-        console.log('Set request userId:', request.userId);
-      } catch (error) {
-        console.error('Token verification error:', error);
-      }
+    try {
+      const { id, accessToken } = this.jwtService.verify(token);
+      request.accessToken = accessToken;
+      request.userId = id.toString();
+    } catch (error) {
+      console.error('Token verification error:', error.message);
+      return false;
     }
 
     return super.canActivate(context);
