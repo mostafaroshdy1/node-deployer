@@ -80,7 +80,7 @@ export class AuthService {
     let url: string;
     let params: URLSearchParams | Record<string, string>;
     if (provider === 'github') {
-      url = `https://${provider}/login/oauth/access_token`;
+      url = `https://${provider}.com/login/oauth/access_token`;
       params = new URLSearchParams();
       params.append('grant_type', 'refresh_token');
       params.append('refresh_token', refreshToken);

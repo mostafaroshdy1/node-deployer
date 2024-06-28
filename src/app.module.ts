@@ -11,25 +11,6 @@ import { AnalyticsModule } from './modules/analytics.module';
 import { ContainersInitializerService } from './services/containers.initializer.service';
 import { DashboardModule } from './modules/dashboard.module';
 import { EnvironmentModule } from './modules/environment.module';
-import { AuthService } from './services/auth.service';
-
-// @Module({
-//   imports: [
-//     ConfigModule.forRoot({ isGlobal: true }),
-//     AnalyticsModule,
-//     AuthModule,
-//     RepoModule,
-//     UserModule,
-//     TierModule,
-//     RepoModule,
-//     DeploymentModule,
-//     DashboardModule,
-//     EnvironmentModule,
-//   ],
-//   controllers: [AppController],
-//   providers: [AppService, ContainersInitializerService],
-// })
-// export class AppModule {}
 
 @Module({
   imports: [
@@ -45,6 +26,6 @@ import { AuthService } from './services/auth.service';
     EnvironmentModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ContainersInitializerService, AuthService],
+  providers: [AppService, ContainersInitializerService],
 })
 export class AppModule {}
