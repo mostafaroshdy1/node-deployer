@@ -1,17 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import axios, { AxiosResponse } from 'axios';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import axios from 'axios';
 import { Observer } from '../interfaces/observer.interface';
-import providers from 'src/common/types/providers';
-import {
-  ProviderStrategy,
-  GithubWebhook,
-  GitlabWebhook,
-} from 'src/strategies/Provider.strategy';
-import ProviderInterface from 'src/interfaces/Provider.interface';
 
 @Injectable()
 export class DashboardService {
@@ -36,11 +25,14 @@ export class DashboardService {
   }
 
   async getProviderRepos(provider: string, accessToken: string) {
-    const { repoApi: url } = providers[provider];
     try {
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.get(
+        `https://${provider}.com/api/v4/projects`,
+        {
+          params: { owned: true },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -57,9 +49,8 @@ export class DashboardService {
   }
 
   async getProviderUser(provider: string, accessToken: string) {
-    const { userApi: url } = providers[provider];
     try {
-      const response = await axios.get(url, {
+      const response = await axios.get(`https://${provider}.com/api/v4/user`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       return response.data;
@@ -77,40 +68,66 @@ export class DashboardService {
     }
   }
 
-  async addWebhookToRepo(
+  async getExistingWebhooks(
     provider: string,
     accessToken: string,
-    repoId: number | string,
-    webhookUrl: string,
+    repoId: string,
   ) {
     try {
-      const providerStrategy = new ProviderStrategy();
-      let providerStrategyWebhook!: ProviderInterface;
-      if (provider === 'github') {
-        providerStrategyWebhook = new GithubWebhook();
-      } else if (provider === 'gitlab') {
-        providerStrategyWebhook = new GitlabWebhook();
-      } else {
-        throw new BadRequestException();
-      }
-
-      providerStrategy.setStrategy(providerStrategyWebhook);
-      const response: AxiosResponse = await providerStrategy.addWebHook(
-        webhookUrl,
-        repoId,
-        accessToken,
+      const response = await axios.get(
+        `https://${provider}.com/api/v4/projects/${repoId}/hooks`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
       );
       return response.data;
     } catch (error) {
       console.error(
-        `Error adding webhook to ${provider} repository:`,
-        error.response ? error.response.data : error.message,
+        `Error fetching webhooks from ${provider} repository:` + error,
       );
       throw new InternalServerErrorException(
-        `Failed to add webhook to ${provider} repository: ` +
-          (error.response
-            ? error.response.data.error_description
-            : error.message),
+        `Failed to fetch webhooks from ${provider} repository: ` + error,
+      );
+    }
+  }
+
+  async addWebhookToRepo(
+    provider: string,
+    accessToken: string,
+    repoId: string,
+    webhookUrl: string,
+  ) {
+    try {
+      const existingWebhooks = await this.getExistingWebhooks(
+        provider,
+        accessToken,
+        repoId,
+      );
+
+      const webhookExists = existingWebhooks.some(
+        (webhook: any) => webhook.url === webhookUrl,
+      );
+
+      if (webhookExists) {
+        return { message: 'Webhook already exists' };
+      }
+
+      const webhookData = {
+        url: webhookUrl,
+        push_events: true,
+      };
+      const response = await axios.post(
+        `https://${provider}.com/api/v4/projects/${repoId}/hooks`,
+        webhookData,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding webhook to ${provider} repository:`, error);
+      throw new InternalServerErrorException(
+        `Failed to add webhook to ${provider} repository: ` + error,
       );
     }
   }
@@ -135,14 +152,10 @@ export class DashboardService {
       return results;
     } catch (error) {
       console.error(
-        `Error adding webhooks to all ${provider} repositories:`,
-        error.response ? error.response.data : error.message,
+        `Error adding webhooks to all ${provider} repositories:`+ error
       );
       throw new InternalServerErrorException(
-        `Failed to add webhooks to all ${provider} repositories: ` +
-          (error.response
-            ? error.response.data.error_description
-            : error.message),
+        `Failed to add webhooks to all ${provider} repositories: ` + error,
       );
     }
   }

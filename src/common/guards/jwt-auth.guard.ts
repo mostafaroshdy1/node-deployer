@@ -14,17 +14,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<CustomRequest>();
+    const authHeader = request.headers['authorization'];
 
-    const token = request.headers['authorization']?.replace('Bearer ', '');
-    if (token) {
-      try {
-        const { id, accessToken } = this.jwtService.verify(token);
+    if (!authHeader) {
+      console.error('Authorization header missing');
+      return false;
+    }
 
-        request.accessToken = accessToken;
-        request.userId = id.toString();
-      } catch (error) {
-        console.error('Token verification error:', error);
-      }
+    const token = authHeader.replace('Bearer ', '');
+
+    try {
+      const { id, accessToken } = this.jwtService.verify(token);
+      request.accessToken = accessToken;
+      request.userId = id.toString();
+    } catch (error) {
+      console.error('Token verification error:', error.message);
+      return false;
     }
 
     return super.canActivate(context);
