@@ -65,9 +65,8 @@ export class DashboardController {
         provider,
         accessToken,
         repoId,
-        webhookUrl,
+        process.env.WEBHOOKURL,
       );
-
       return res.json(result);
     } catch (error) {
       console.error(error);
@@ -77,8 +76,9 @@ export class DashboardController {
 
   @Post('/webhook')
   async handleWebhook(@Body() body: any, @Res() res: Response) {
-    console.log('Received webhook event:', body);
-    this.dashboardService.notifyObservers(body);
+    // console.log('Received webhook event:', body);
+    const repo = body.project.web_url;
+    this.dashboardService.notifyObservers(repo);
     res.status(200).send('Webhook received');
   }
 }

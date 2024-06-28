@@ -10,16 +10,21 @@ import { DockerImageService } from './dockerImage.service';
 import { TierService } from './tier.service';
 import { UserService } from './user.service';
 import { ContainerService } from './container.service';
+import { Observer } from 'src/interfaces/observer.interface';
+import { DashboardService } from './dashboard.service';
 
 @Injectable()
-export class DeploymentService {
+export class DeploymentService implements Observer {
   constructor(
     private readonly repoService: RepoService,
     private readonly dockerImageService: DockerImageService,
     private readonly tierService: TierService,
     private readonly userService: UserService,
     private readonly containerService: ContainerService,
-  ) {}
+    private readonly dashboardService: DashboardService,
+  ) {
+    this.dashboardService.addObserver(this);
+  }
   async createImage(repoId: string, nodeVersion: string): Promise<DockerImage> {
     try {
       const imageData = await this.repoService.cloneRepo(repoId);
@@ -108,5 +113,16 @@ export class DeploymentService {
     >
   > {
     return this.repoService.findWhere({ userId });
+  }
+  async update(repoUrl: string): Promise<void> {
+    try {
+      const foundRepo = await this.repoService.findWhere({
+        url: repoUrl + '.git',
+      });
+      const { userId, id } = foundRepo[0];
+      await this.redeploy(id, userId);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
