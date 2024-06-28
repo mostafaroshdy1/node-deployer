@@ -7,15 +7,14 @@ import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { UserEntity } from 'src/entities/user.entity';
 import providers from 'src/common/types/providers';
-
+import { Observable, from } from 'rxjs';
 
 @Injectable()
 export class AuthService {
-	constructor(
-		private readonly userService: UserService,
-		private readonly jwtService: JwtService,
-	) {}
-
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async validateUser(
     profile: Profile,
@@ -63,69 +62,45 @@ export class AuthService {
     return { access_token };
   }
 
+  refreshAccessToken(
+    refreshToken: string,
+    provider: string,
+  ): Observable<{ accessToken: string; refreshToken: string }> {
+    const { client_id, client_secret } = providers[provider];
 
-	async getGitLabRepos(accessToken: string) {
-		try {
-			const response = await axios.get('https://gitlab.com/api/v4/projects', {
-				params: { owned: true },
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching GitLab repositories:', error.response.data);
-			throw new InternalServerErrorException(
-				'Failed to fetch GitLab repositories: ' + error.response.data.error_description,
-			);
-		}
-	}
+    return from(
+      axios
+        .post(`https://${provider}/oauth/token`, {
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+          client_id: client_id,
+          client_secret: client_secret,
+        })
+        .then((response) => {
+          const newAccessToken = response.data.access_token;
+          const newRefreshToken = response.data.refresh_token;
 
-	async getGitLabUser(accessToken: string) {
-		try {
-			const response = await axios.get('https://gitlab.com/api/v4/user', {
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching GitLab user:', error.response.data);
-			throw new InternalServerErrorException(
-				'Failed to fetch GitLab user: ' + error.response.data.error_description,
-			);
-		}
-	}
+          return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+        })
+        .catch((error) => {
+          console.error(
+            `Error refreshing access token for provider ${provider}:`,
+            error.response?.data || error.message,
+          );
+          throw new InternalServerErrorException(
+            `Failed to refresh access token for provider ${provider}`,
+          );
+        }),
+    );
+  }
 
-	async getRedirectUrl(provider: string) {
-		if (!providers[provider]) {
-			throw new Error(`Unsupported provider: ${provider}`);
-		}
+  async getRedirectUrl(provider: string) {
+    if (!providers[provider]) {
+      throw new Error(`Unsupported provider: ${provider}`);
+    }
 
-		const { rootUrl, options } = providers[provider];
-		const queryString = new URLSearchParams(options).toString();
-		return `${rootUrl}?${queryString}`;
-	}
-
-  // async refreshAccessToken(
-  //   refreshToken: string,
-  // ): Promise<{ accessToken: string; refreshToken: string }> {
-  //   try {
-
-  //     const response = await axios.post('https://gitlab.com/oauth/token', {
-  //       grant_type: 'refresh_token',
-  //       refresh_token: refreshToken,
-  //       client_id: process.env.GITLAB_CLIENT_ID,
-  //       client_secret: process.env.GITLAB_CLIENT_SECRET,
-  //     });
-
-  //     const newAccessToken = response.data.access_token;
-  //     const newRefreshToken = response.data.refresh_token;
-
-  //     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-  //   } catch (error) {
-  //     console.error(
-  //       'Error refreshing access token:',
-  //       error.response?.data || error.message,
-  //     );
-  //     throw new InternalServerErrorException('Failed to refresh access token');
-  //   }
-  // }
-
+    const { rootUrl, options } = providers[provider];
+    const queryString = new URLSearchParams(options).toString();
+    return `${rootUrl}?${queryString}`;
+  }
 }

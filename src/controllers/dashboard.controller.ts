@@ -7,14 +7,17 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { DashboardService } from 'src/services/dashboard.service';
 import { ConcreteObserver } from '../observers/concrete.observer';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CustomRequest } from '../interfaces/custom-request.interface';
+import { TokenInterceptor } from 'src/common/interceptors/tokenRefresh.interceptor';
 
 @Controller('dashboard')
+@UseInterceptors(TokenInterceptor)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {
     const observer = new ConcreteObserver();
@@ -29,6 +32,7 @@ export class DashboardController {
     @Res() res: Response,
   ) {
     try {
+      console.log('Received provider callback');
       const { accessToken } = guardReq;
       const provider = req.params.provider;
 

@@ -14,11 +14,12 @@ import { JwtStrategy } from 'src/strategies/jwt.strategy';
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET || "ay 7agaa",
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: process.env.JWT_EXPIRATION },
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService, GithubStrategy, GitLabStrategy, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
