@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { RepoService } from './repo.service';
-import { Container, DockerImage, Prisma, Repo } from '@prisma/client';
+import { Container, DockerImage, Prisma, Repo, User } from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
 import { TierService } from './tier.service';
 import { UserService } from './user.service';
@@ -25,9 +25,13 @@ export class DeploymentService implements Observer {
   ) {
     this.dashboardService.addObserver(this);
   }
-  async createImage(repoId: string, nodeVersion: string): Promise<DockerImage> {
+  async createImage(
+    repo: Repo,
+    userId: string,
+    nodeVersion: string,
+  ): Promise<DockerImage> {
     try {
-      const imageData = await this.repoService.cloneRepo(repoId);
+      const imageData = await this.repoService.cloneRepo(repo, userId);
       return this.dockerImageService.create(imageData, nodeVersion);
     } catch (error) {
       console.error(error);
@@ -52,7 +56,7 @@ export class DeploymentService implements Observer {
 
       const [tier, image] = await Promise.all([
         this.tierService.findById(tierId),
-        this.createImage(repoId, nodeVersion),
+        this.createImage(repo, userId, nodeVersion),
       ]);
       if (tier.price > user.balance)
         throw new BadRequestException('Insufficient balance');
@@ -67,7 +71,7 @@ export class DeploymentService implements Observer {
       console.error(error);
     }
   }
-  async redeploy(repoId: string, userId: String): Promise<Container[]> {
+  async redeploy(repoId: string, userId: string): Promise<Container[]> {
     try {
       const repo = await this.repoService.findById(repoId);
       const nodeVersion = repo.nodeVersion;
@@ -85,7 +89,7 @@ export class DeploymentService implements Observer {
       });
       await this.containerService.removeByImageId(image.id);
       await this.dockerImageService.remove(image.id);
-      const newImage = await this.createImage(repoId, nodeVersion);
+      const newImage = await this.createImage(repo, userId, nodeVersion);
       const newContainers = await Promise.all(
         containersData.map(async (containerData) => {
           const tier = await this.tierService.findById(containerData.tierId);
