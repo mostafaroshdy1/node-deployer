@@ -32,22 +32,4 @@ export class AuthController {
     const url = await this.authService.getRedirectUrl(req.params.provider);
     return res.json({ url });
   }
-
-  // @Get(':provider/callback/repo')
-  // async gitlabAuthCallback(@Req() req: Request, @Res() res: Response) {
-  //   const accessToken = req.headers.authorization.split(' ')[1];
-
-  //   try {
-  //     const user = await this.authService.getGitLabUser(accessToken);
-  //     const repos = await this.authService.getGitLabRepos(accessToken);
-  //     const response = {
-  //       user: user,
-  //       repos: repos,
-  //     };
-  //     return res.json(response);
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.status(500).json({ message: 'Internal Server Error' });
-  //   }
-  // }
 }

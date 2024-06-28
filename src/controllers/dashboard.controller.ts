@@ -29,6 +29,7 @@ export class DashboardController {
     @Res() res: Response,
   ) {
     try {
+      console.log('Received provider callback');
       const { accessToken } = guardReq;
       const provider = req.params.provider;
 
