@@ -5,7 +5,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { RepoService } from './repo.service';
-import { Container, DockerImage, Prisma, Repo, User } from '@prisma/client';
+import {
+  Container,
+  DockerImage,
+  Prisma,
+  Repo,
+  Tier,
+  User,
+} from '@prisma/client';
 import { DockerImageService } from './dockerImage.service';
 import { TierService } from './tier.service';
 import { UserService } from './user.service';
@@ -41,36 +48,49 @@ export class DeploymentService implements Observer {
   async deploy(
     repoId: string,
     userId: string,
-    nodeVersion: string,
     tierId: string,
   ): Promise<Container> {
+    let repo: Repo, user: User, tier: Tier;
     try {
-      const [repo, user] = await Promise.all([
+      [repo, user, tier] = await Promise.all([
         this.repoService.findById(repoId),
         this.userService.findById(userId),
-      ]);
-
-      // must be put in guard
-      if (repo.userId !== userId)
-        throw new UnauthorizedException('User does not own this repo');
-
-      const [tier, image] = await Promise.all([
         this.tierService.findById(tierId),
-        this.createImage(repo, userId, nodeVersion),
       ]);
-      if (tier.price > user.balance)
-        throw new BadRequestException('Insufficient balance');
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Invalid repo or user or tier');
+    }
 
+    // Must be put in guard
+    if (repo.userId !== userId)
+      throw new UnauthorizedException('User does not own this repo');
+
+    const [image] = await Promise.all([
+      this.createImage(repo, userId, repo.nodeVersion),
+    ]);
+
+    if (tier.price > user.balance)
+      throw new BadRequestException('Insufficient balance');
+
+    try {
       await this.userService.update(user.id, {
         balance: user.balance - tier.price,
       });
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Error in updating user balance');
+    }
 
+    try {
       const container = await this.containerService.create(image, tier);
       return container;
     } catch (error) {
       console.error(error);
+      throw new BadRequestException('Error in creating container');
     }
   }
+
   async redeploy(repoId: string, userId: string): Promise<Container[]> {
     try {
       const repo = await this.repoService.findById(repoId);

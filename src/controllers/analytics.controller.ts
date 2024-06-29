@@ -6,7 +6,6 @@ import { ContainerService } from 'src/services/container.service';
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-
   // @Get('usage')
   // async getResourceUsage(
   //   @Query('containerId') containerId: string,
@@ -25,6 +24,9 @@ export class AnalyticsController {
     @Query('containerId') containerId: string,
     @Query('interval') interval: string,
   ) {
-    return await this.analyticsService.getResourceUsageByInterval(containerId, interval);
+    return await this.analyticsService.getResourceUsageByInterval(
+      containerId,
+      interval,
+    );
   }
 }
