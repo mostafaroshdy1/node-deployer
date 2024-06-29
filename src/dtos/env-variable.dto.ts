@@ -21,6 +21,11 @@ export class CreateEnvVariablesDto {
 
   @IsString()
   event: string;
+  
+  @IsString()
+  nodeVersion: string;
+  
+
 
   @IsArray()
   @ValidateNested({ each: true })

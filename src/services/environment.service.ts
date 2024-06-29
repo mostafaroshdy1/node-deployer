@@ -10,7 +10,7 @@ export class EnvironmentService {
     userId: string,
   ) {
     console.log('User ID in service:', userId);
-    const { repoId, name, url, event, variables } = createEnvVariablesDto;
+    const { repoId, name, url, event, variables, nodeVersion } = createEnvVariablesDto;
 
     const envVariables = JSON.stringify(
       variables.reduce((acc, variable) => {
@@ -36,6 +36,7 @@ export class EnvironmentService {
           url,
           event,
           env: envVariables,
+          nodeVersion,
           updatedAt: new Date(),
         },
       });
@@ -49,6 +50,7 @@ export class EnvironmentService {
           userId,
           event,
           env: envVariables,
+          nodeVersion,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
