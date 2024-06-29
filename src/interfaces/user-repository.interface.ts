@@ -8,4 +8,5 @@ export interface IUserRepository {
   create(data: Prisma.UserCreateInput): Promise<User>;
   update(id: string, data: Prisma.UserUpdateInput): Promise<User>;
   remove(id: string): Promise<User>;
+  findWhere(data: Prisma.UserWhereInput): Promise<User | null>;
 }

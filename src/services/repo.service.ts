@@ -1,12 +1,13 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateRepoDto } from '../dtos/create-repo.dto';
 import { UpdateRepoDto } from '../dtos/update-repo.dto';
-import { DockerImage, Prisma, Repo } from '@prisma/client';
+import { DockerImage, Prisma, Repo, User } from '@prisma/client';
 import { IRepoRepository } from 'src/interfaces/repo-repository.interface';
 import { DockerService } from 'src/services/docker.service';
 import { ContainerService } from './container.service';
 import { DockerImageService } from './dockerImage.service';
 import path from 'path';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class RepoService {
@@ -15,18 +16,30 @@ export class RepoService {
     private readonly repoRepository: IRepoRepository,
     private readonly dockerService: DockerService,
     private readonly dockerImageService: DockerImageService,
+    private readonly authService: AuthService,
   ) {}
 
-  async findAll(): Promise<Repo[]> {
+  findAll(): Promise<Repo[]> {
     return this.repoRepository.findAll();
   }
 
-  async findById(id: string): Promise<Repo | null> {
+  findWhere(where: Prisma.RepoWhereInput): Promise<
+    Array<
+      Prisma.RepoGetPayload<{
+        include: {
+          dockerImage: { include: { Containers: { include: { tier: true } } } };
+        };
+      }>
+    >
+  > {
+    return this.repoRepository.findAllWhere(where);
+  }
+
+  findById(id: string): Promise<Repo | null> {
     return this.repoRepository.findById(id);
   }
 
-  async create(data: Prisma.RepoCreateInput): Promise<Repo> {
-    // await this.dockerService.cloneRepo(data.url);
+  create(data: Prisma.RepoCreateInput): Promise<Repo> {
     return this.repoRepository.create(data);
   }
 
@@ -47,22 +60,40 @@ export class RepoService {
     return repo;
   }
 
-  async cloneRepo(repoId: string): Promise<{
+  async cloneRepo(
+    repo: Repo,
+    userId: string,
+  ): Promise<{
     repoPath: string;
     imageName: string;
     repo: Repo;
   }> {
     const reposPath = path.join(__dirname, '../../../../repos/');
-    const repo = await this.findById(repoId);
     if (!repo || !repo.url) {
       throw new BadRequestException('Repo not found');
     }
-    const dirName = await this.dockerService.cloneRepo(repo.url, reposPath);
+    const repoUrl = insertStringInURL(
+      repo.url,
+      'accessToken:' +
+        (await this.authService.gitAccessToken(userId)).access_token +
+        '@',
+    );
+    const dirName = await this.dockerService.cloneRepo(repoUrl, reposPath);
     const imageName = dirName.toLocaleLowerCase();
     return {
       repoPath: reposPath + dirName,
       imageName: imageName,
       repo: repo,
     };
+
+    function insertStringInURL(url: string, stringToInsert: string) {
+      const index = url.indexOf('https://');
+      if (index !== -1) {
+        return url.slice(0, index + 8) + stringToInsert + url.slice(index + 8);
+      } else {
+        console.error('URL does not start with "https://".');
+        return url;
+      }
+    }
   }
 }

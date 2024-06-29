@@ -24,13 +24,13 @@ COPY package.json ./
 
 USER node
 
-RUN npm install
+RUN npm install --force
 
 COPY --chown=node:node . .
 
 EXPOSE 3000
 
-CMD ["node", "app.js"]
+CMD ["npm", "run", "start"]
 EOF
 
 echo -n "Dockerfile created at $TARGET_PATH with Node.js version $NODE_VERSION"

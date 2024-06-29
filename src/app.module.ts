@@ -10,7 +10,7 @@ import { DeploymentModule } from './modules/deployment.module';
 import { AnalyticsModule } from './modules/analytics.module';
 import { ContainersInitializerService } from './services/containers.initializer.service';
 import { DashboardModule } from './modules/dashboard.module';
-
+import { EnvironmentModule } from './modules/environment.module';
 
 @Module({
   imports: [
@@ -21,8 +21,9 @@ import { DashboardModule } from './modules/dashboard.module';
     UserModule,
     TierModule,
     RepoModule,
-    DashboardModule,
     DeploymentModule,
+    DashboardModule,
+    EnvironmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, ContainersInitializerService],

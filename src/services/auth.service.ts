@@ -1,101 +1,149 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
+import { DashboardService } from './dashboard.service';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { Profile } from 'passport';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from 'src/entities/user.entity';
 import axios from 'axios';
 import providers from 'src/common/types/providers';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-	constructor(
-		private readonly userService: UserService,
-		private readonly jwtService: JwtService,
-	) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly dashBoardService: DashboardService,
+  ) {}
 
-	async validateUser(profile: Profile, accessToken: string): Promise<User | null> {
-		const { id, username, displayName, emails, provider } = profile;
-		const email: string = emails[0].value;
-		const foundUser = await this.userService.findByEmailAndProvider(email, provider);
+  async validateUser(
+    profile: Profile,
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<User | null> {
+    const { id, username, displayName, emails, provider } = profile;
+    const email: string = emails[0].value;
 
-		if (foundUser) {
-			foundUser.accessToken = accessToken;
-			return await this.userService.update(foundUser.id, { accessToken });
-		}
+    let user = await this.userService.findByEmailAndProvider(email, provider);
 
-		const user: CreateUserDto = {
-			provider: provider,
-			providerId: id,
-			username: username,
-			name: displayName,
-			email: emails[0].value,
-			accessToken: accessToken,
-		};
-		return this.userService.create(user);
-	}
+    if (user) {
+      user = await this.userService.update(user.id, {
+        accessToken,
+        refreshToken,
+      });
+    } else {
+      const newUser: CreateUserDto = {
+        provider: provider,
+        providerId: id,
+        username: username,
+        name: displayName,
+        email: emails[0].value,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+      user = await this.userService.create(newUser);
+    }
 
-	async createJwtTokens(
-		user: UserEntity,
-		scope: string,
-	): Promise<{ access_token: string; refresh_token: string }> {
-		const payload = {
-			id: user.id,
-			email: user.email,
-			scope: scope,
-		};
-		const [access_token, refresh_token] = await Promise.all([
-			this.jwtService.signAsync(payload, {
-				expiresIn: process.env.JWT_EXPIRATION,
-			}),
-			this.jwtService.signAsync(payload, {
-				expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
-			}),
-		]);
-		return {
-			access_token,
-			refresh_token,
-		};
-	}
+    return user;
+  }
 
-	async getGitLabRepos(accessToken: string) {
-		try {
-			const response = await axios.get('https://gitlab.com/api/v4/projects', {
-				params: { owned: true },
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching GitLab repositories:', error.response.data);
-			throw new InternalServerErrorException(
-				'Failed to fetch GitLab repositories: ' + error.response.data.error_description,
-			);
-		}
-	}
+  async createJwtTokens(user: UserEntity): Promise<{ access_token: string }> {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+    };
+    const [access_token] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }),
+    ]);
+    return { access_token };
+  }
 
-	async getGitLabUser(accessToken: string) {
-		try {
-			const response = await axios.get('https://gitlab.com/api/v4/user', {
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching GitLab user:', error.response.data);
-			throw new InternalServerErrorException(
-				'Failed to fetch GitLab user: ' + error.response.data.error_description,
-			);
-		}
-	}
+  async gitAccessToken(
+    userId: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new NotFoundException(`User not found for id: ${userId}`);
+    }
 
-	async getRedirectUrl(provider: string) {
-		if (!providers[provider]) {
-			throw new Error(`Unsupported provider: ${provider}`);
-		}
+    const { accessToken } = user;
+    const { provider, refreshToken } = user;
+    const { client_id, client_secret } = providers[provider].options;
 
-		const { rootUrl, options } = providers[provider];
-		const queryString = new URLSearchParams(options).toString();
-		return `${rootUrl}?${queryString}`;
-	}
+    try {
+      await this.dashBoardService.getProviderRepos(provider, accessToken);
+      return { access_token: accessToken, refresh_token: refreshToken };
+    } catch (error) {
+      let url: string;
+      let params: URLSearchParams | Record<string, string>;
+      if (provider === 'github') {
+        url = `https://${provider}.com/login/oauth/access_token`;
+        params = new URLSearchParams();
+        params.append('grant_type', 'refresh_token');
+        params.append('refresh_token', refreshToken);
+        params.append('client_id', client_id);
+        params.append('client_secret', client_secret);
+      } else if (provider === 'gitlab') {
+        url = `https://${provider}.com/oauth/token`;
+        params = {
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+          client_id: client_id,
+          client_secret: client_secret,
+        };
+      } else {
+        throw new BadRequestException(`Unsupported provider: ${provider}`);
+      }
 
+      try {
+        const response = await axios.post(url, params, {
+          headers: {
+            'Content-Type':
+              provider === 'github'
+                ? 'application/x-www-form-urlencoded'
+                : 'application/json',
+            Accept: 'application/json',
+          },
+        });
+
+        if (response.status !== 200) {
+          throw new InternalServerErrorException(
+            `Failed to refresh access token for provider: ${provider}`,
+          );
+        }
+
+        const { access_token, refresh_token } = response.data;
+        await this.userService.update(userId, {
+          accessToken: access_token,
+          refreshToken: refresh_token,
+        });
+
+        return { access_token, refresh_token };
+      } catch (refreshError) {
+        throw new InternalServerErrorException(
+          `Failed to refresh access token for provider: ${provider} - ${refreshError.message}`,
+        );
+      }
+    }
+  }
+
+  async getRedirectUrl(provider: string) {
+    if (!providers[provider]) {
+      throw new Error(`Unsupported provider: ${provider}`);
+    }
+
+    const { rootUrl, options } = providers[provider];
+    const queryString = new URLSearchParams(options).toString();
+    return `${rootUrl}?${queryString}`;
+  }
 }
