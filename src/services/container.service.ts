@@ -140,4 +140,7 @@ export class ContainerService {
   async getContainerCpu(containerId: string): Promise<string> {
     return this.containerRepository.getContainerCpu(containerId);
   }
+  async getContainerLogs(containerId: string): Promise<string> {
+    return this.dockerService.getContainerLogs(containerId);
+  }
 }
