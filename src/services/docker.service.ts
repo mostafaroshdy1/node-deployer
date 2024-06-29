@@ -98,7 +98,10 @@ export class DockerService {
     return this.runScript('memory_usage.sh', [containerId]);
   }
 
-  logCpuUsage(containerId: string, cpu:string): Promise<string> {
+  logCpuUsage(containerId: string, cpu: string): Promise<string> {
     return this.runScript('cpu_usage.sh', [containerId, cpu]);
+  }
+  generateEnv(path: string, env: string): Promise<string> {
+    return this.runScript('generate_env.sh', [path, env]);
   }
 }

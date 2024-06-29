@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -83,62 +84,54 @@ export class AuthService {
       await this.dashBoardService.getProviderRepos(provider, accessToken);
       return { access_token: accessToken, refresh_token: refreshToken };
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        let url: string;
-        let params: URLSearchParams | Record<string, string>;
-        if (provider === 'github') {
-          url = `https://${provider}.com/login/oauth/access_token`;
-          params = new URLSearchParams();
-          params.append('grant_type', 'refresh_token');
-          params.append('refresh_token', refreshToken);
-          params.append('client_id', client_id);
-          params.append('client_secret', client_secret);
-        } else if (provider === 'gitlab') {
-          url = `https://${provider}.com/oauth/token`;
-          params = {
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken,
-            client_id: client_id,
-            client_secret: client_secret,
-          };
-        } else {
-          throw new InternalServerErrorException(
-            `Unsupported provider: ${provider}`,
-          );
-        }
-
-        try {
-          const response = await axios.post(url, params, {
-            headers: {
-              'Content-Type':
-                provider === 'github'
-                  ? 'application/x-www-form-urlencoded'
-                  : 'application/json',
-              Accept: 'application/json',
-            },
-          });
-
-          if (response.status !== 200) {
-            throw new InternalServerErrorException(
-              `Failed to refresh access token for provider: ${provider}`,
-            );
-          }
-
-          const { access_token, refresh_token } = response.data;
-          await this.userService.update(userId, {
-            accessToken: access_token,
-            refreshToken: refresh_token,
-          });
-
-          return { access_token, refresh_token };
-        } catch (refreshError) {
-          throw new InternalServerErrorException(
-            `Failed to refresh access token for provider: ${provider} - ${refreshError.message}`,
-          );
-        }
+      let url: string;
+      let params: URLSearchParams | Record<string, string>;
+      if (provider === 'github') {
+        url = `https://${provider}.com/login/oauth/access_token`;
+        params = new URLSearchParams();
+        params.append('grant_type', 'refresh_token');
+        params.append('refresh_token', refreshToken);
+        params.append('client_id', client_id);
+        params.append('client_secret', client_secret);
+      } else if (provider === 'gitlab') {
+        url = `https://${provider}.com/oauth/token`;
+        params = {
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+          client_id: client_id,
+          client_secret: client_secret,
+        };
       } else {
+        throw new BadRequestException(`Unsupported provider: ${provider}`);
+      }
+
+      try {
+        const response = await axios.post(url, params, {
+          headers: {
+            'Content-Type':
+              provider === 'github'
+                ? 'application/x-www-form-urlencoded'
+                : 'application/json',
+            Accept: 'application/json',
+          },
+        });
+
+        if (response.status !== 200) {
+          throw new InternalServerErrorException(
+            `Failed to refresh access token for provider: ${provider}`,
+          );
+        }
+
+        const { access_token, refresh_token } = response.data;
+        await this.userService.update(userId, {
+          accessToken: access_token,
+          refreshToken: refresh_token,
+        });
+
+        return { access_token, refresh_token };
+      } catch (refreshError) {
         throw new InternalServerErrorException(
-          `Failed to access provider repos: ${error.message}`,
+          `Failed to refresh access token for provider: ${provider} - ${refreshError.message}`,
         );
       }
     }
