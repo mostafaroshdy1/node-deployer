@@ -51,7 +51,7 @@ model Repo {
   repoId      String       @unique
   dockerImage DockerImage?
   event       String?
-  env         String?
+  env         String?      @default("{}")
   nodeVersion String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
