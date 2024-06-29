@@ -112,4 +112,13 @@ export class DeploymentController {
     const container = await this.containerService.resumeContainer(containerId);
     return { containerId: container.id };
   }
+
+  @Get('container/logs/:containerId')
+  async getContainerLogs(
+    @Param('containerId') containerId: string,
+  ): Promise<{ logs: any }> {
+    const logs = await this.containerService.getContainerLogs(containerId);
+    return JSON.parse(logs);
+  }
+
 }

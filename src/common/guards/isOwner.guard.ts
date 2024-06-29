@@ -23,8 +23,9 @@ export class IsOwnerGuard implements CanActivate {
 
     const repos =
       await this.deploymentService.findAllContainersByUserId(userId);
+
     const found = repos.find((repo) =>
-      repo.dockerImage.Containers.some(
+      repo.dockerImage?.Containers.some(
         (container) => container.id === containerId,
       ),
     );

@@ -5,9 +5,8 @@ const providers = {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       redirect_uri: process.env.GITHUB_CALLBACK_URL,
-      scope: 'scope',
     },
-    repoApi: 'https://api.github.com/user/repos',
+    repoApi: 'https://api.github.com/user/repos?per_page=100',
     userApi: 'https://api.github.com/user',
   },
   gitlab: {

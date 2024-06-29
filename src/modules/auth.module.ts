@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { AuthService } from '../services/auth.service';
-import { GithubStrategy } from '../strategies/github.strategy';
+import { AuthService } from 'src/services/auth.service';
+import { GithubStrategy } from 'src/strategies/github.strategy';
 import { UserModule } from './user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/controllers/auth.controller';
 import { GitLabStrategy } from 'src/strategies/gitlab.strategy';
 import { JwtStrategy } from 'src/strategies/jwt.strategy';
 import { DashboardModule } from './dashboard.module';
+import { RepoModule } from './repo.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DashboardModule } from './dashboard.module';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: process.env.JWT_EXPIRATION },
     }),
+    forwardRef(() => RepoModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, GithubStrategy, GitLabStrategy, JwtStrategy],

@@ -1,12 +1,22 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 import { Observer } from '../interfaces/observer.interface';
 import providers from 'src/common/types/providers';
-import { ProviderStrategy, GithubWebhook, GitlabWebhook } from 'src/strategies/Provider.strategy';
+import {
+  ProviderStrategy,
+  GithubWebhook,
+  GitlabWebhook,
+} from 'src/strategies/Provider.strategy';
 import ProviderInterface from 'src/interfaces/Provider.interface';
 
 @Injectable()
 export class DashboardService {
+  private commitData: { [repoId: string]: any[] } = {};
+
   constructor() {}
   private observers: Observer[] = [];
 
@@ -42,7 +52,9 @@ export class DashboardService {
       );
       throw new InternalServerErrorException(
         `Failed to fetch ${provider} repositories: ` +
-          (error.response ? error.response.data.error_description : error.message),
+          (error.response
+            ? error.response.data.error_description
+            : error.message),
       );
     }
   }
@@ -61,12 +73,18 @@ export class DashboardService {
       );
       throw new InternalServerErrorException(
         `Failed to fetch ${provider} user: ` +
-          (error.response ? error.response.data.error_description : error.message),
+          (error.response
+            ? error.response.data.error_description
+            : error.message),
       );
     }
   }
 
-  async getExistingWebhooks(provider: string, accessToken: string, repoId: string) {
+  async getExistingWebhooks(
+    provider: string,
+    accessToken: string,
+    repoId: string,
+  ) {
     try {
       const providerStrategy = new ProviderStrategy();
       let providerStrategyWebhook!: ProviderInterface;
@@ -79,10 +97,15 @@ export class DashboardService {
       }
 
       providerStrategy.setStrategy(providerStrategyWebhook);
-      const response: AxiosResponse = await providerStrategy.getWebHook(repoId, accessToken);
+      const response: AxiosResponse = await providerStrategy.getWebHook(
+        repoId,
+        accessToken,
+      );
       return response.data;
     } catch (error) {
-      console.error(`Error fetching webhooks from ${provider} repository:` + error);
+      console.error(
+        `Error fetching webhooks from ${provider} repository:` + error,
+      );
       throw new InternalServerErrorException(
         `Failed to fetch webhooks from ${provider} repository: ` + error,
       );
@@ -96,25 +119,30 @@ export class DashboardService {
     webhookUrl: string,
   ) {
     try {
-      const existingWebhooks = await this.getExistingWebhooks(provider, accessToken, repoId);
-      console.log('existingWebhooks', existingWebhooks)
+      const existingWebhooks = await this.getExistingWebhooks(
+        provider,
+        accessToken,
+        repoId,
+      );
+      console.log('existingWebhooks', existingWebhooks);
 
       let isWebhookExists;
-
-
 
       const providerStrategy = new ProviderStrategy();
       let providerStrategyWebhook!: ProviderInterface;
       if (provider === 'github') {
         providerStrategyWebhook = new GithubWebhook();
-        isWebhookExists = existingWebhooks.some((webhook: any) => webhook.config.url === webhookUrl);
+        isWebhookExists = existingWebhooks.some(
+          (webhook: any) => webhook.config.url === webhookUrl,
+        );
       } else if (provider === 'gitlab') {
         providerStrategyWebhook = new GitlabWebhook();
-        isWebhookExists = existingWebhooks.some((webhook: any) => webhook.url === webhookUrl);
+        isWebhookExists = existingWebhooks.some(
+          (webhook: any) => webhook.url === webhookUrl,
+        );
       } else {
         throw new BadRequestException();
       }
-
 
       if (isWebhookExists) {
         return { message: 'Webhook already exists' };
@@ -135,20 +163,45 @@ export class DashboardService {
     }
   }
 
-  async addWebhooksToAllRepos(provider: string, accessToken: string, webhookUrl: string) {
+  async addWebhooksToAllRepos(
+    provider: string,
+    accessToken: string,
+    webhookUrl: string,
+  ) {
     try {
       const repos = await this.getProviderRepos(provider, accessToken);
       const results = [];
       for (const repo of repos) {
-        const result = await this.addWebhookToRepo(provider, accessToken, repo.id, webhookUrl);
+        const result = await this.addWebhookToRepo(
+          provider,
+          accessToken,
+          repo.id,
+          webhookUrl,
+        );
         results.push(result);
       }
       return results;
     } catch (error) {
-      console.error(`Error adding webhooks to all ${provider} repositories:` + error);
+      console.error(
+        `Error adding webhooks to all ${provider} repositories:` + error,
+      );
       throw new InternalServerErrorException(
         `Failed to add webhooks to all ${provider} repositories: ` + error,
       );
     }
+  }
+
+  async storeCommitData(repoId: string, commitData: any) {
+    console.log('Store commit data:', commitData);
+    if (!this.commitData[repoId]) {
+      this.commitData[repoId] = [];
+    }
+    this.commitData[repoId].push(commitData);
+  }
+
+  async getCommitData(repoId: string): Promise<any[]> {
+    console.log('Get commits by repo ID:', repoId);
+    console.log('Commit data:', this.commitData);
+    return this.commitData[repoId] || [];
   }
 }

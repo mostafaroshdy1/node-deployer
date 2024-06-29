@@ -32,8 +32,13 @@ export class ContainerService {
     port: string = null,
   ): Promise<Container> {
     try {
+      const containers = await this.findAll();
+      const reservedIps = containers.map(
+        (container) => container.ip + ':' + container.port,
+      );
       if (ip == null && port == null) {
-        const ipAddress = await this.dockerService.getFreeIpAddress();
+        const ipAddress =
+          await this.dockerService.getFreeIpAddress(reservedIps);
         [ip, port] = ipAddress.split(':');
       }
       const contaienrId = await this.dockerService.createContainer(
@@ -139,5 +144,8 @@ export class ContainerService {
 
   async getContainerCpu(containerId: string): Promise<string> {
     return this.containerRepository.getContainerCpu(containerId);
+  }
+  async getContainerLogs(containerId: string): Promise<string> {
+    return this.dockerService.getContainerLogs(containerId);
   }
 }
