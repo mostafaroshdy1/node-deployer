@@ -36,6 +36,7 @@ export class DockerImageService {
         this.dockerService.generateDockerFile(nodeVersion, data.repoPath),
         this.dockerService.generateEnv(data.repoPath, `'${data.repo.env}'`), // must follow this format as the script takes string
       ]);
+
       let dockerImage = await this.dockerImageRepository.findByRepoId(
         data.repo.id,
       );

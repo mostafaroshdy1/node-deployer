@@ -10,6 +10,10 @@ import { DeploymentModule } from './modules/deployment.module';
 import { AnalyticsModule } from './modules/analytics.module';
 import { ContainersInitializerService } from './services/containers.initializer.service';
 import { DashboardModule } from './modules/dashboard.module';
+
+import { StripeModule } from './stripe/stripe.module';
+
+
 import { EnvironmentModule } from './modules/environment.module';
 
 @Module({
@@ -22,6 +26,7 @@ import { EnvironmentModule } from './modules/environment.module';
     TierModule,
     RepoModule,
     DeploymentModule,
+    StripeModule,
     DashboardModule,
     EnvironmentModule,
   ],

@@ -7,7 +7,7 @@ import {
   Get,
   UseGuards,
   Req,
-  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Container, Repo } from '@prisma/client';
 import { DeploymentService } from 'src/services/deployment.service';
@@ -25,23 +25,29 @@ export class DeploymentController {
 
   // The user buys new container
   @Post('container')
+  @UseGuards(JwtAuthGuard)
   async createContainer(
-    @Body()
-    body: {
-      userId: string;
-      repoId: string;
-      nodeVersion: string;
-      tierId: string;
-    },
+    @Body('repoId') repoId: string,
+    @Body('tierId')  tierId: string,
+    @Req() guardReq: CustomRequest,
   ) {
-    const container = await this.deploymentService.deploy(
-      body.repoId,
-      body.userId,
-      body.nodeVersion,
-      body.tierId,
-    );
-    const ipAddress = container.ip + ':' + container.port;
-    return { ipAddress };
+    try {
+      console.log('Body', repoId, tierId);
+      const { userId } = guardReq;
+      const container = await this.deploymentService.deploy(
+        repoId,
+        userId,
+        tierId,
+      );
+      
+      const ipAddress = container.ip + ':' + container.port;
+      return { ipAddress };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException(
+        'Error in Deploying Container, fix the configuration and try again',
+      );
+    }
   }
 
   @Get('container')

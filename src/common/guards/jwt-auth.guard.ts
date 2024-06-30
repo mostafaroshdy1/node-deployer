@@ -27,6 +27,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       const { id, accessToken } = this.jwtService.verify(token);
       request.accessToken = accessToken;
       request.userId = id.toString();
+
+      console.log('User ID:', request.userId);
+      console.log('Access Token:', request.accessToken);
+      
     } catch (error) {
       console.error('Token verification error:', error.message);
       return false;
