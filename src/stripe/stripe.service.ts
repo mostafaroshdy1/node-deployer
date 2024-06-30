@@ -14,7 +14,7 @@ export class StripeService {
 
     // Find the user by providerId
     const user = await this.prisma.user.findUnique({
-      where: { providerId: createStripeDto.user_id },
+      where: { id: createStripeDto.user_id },
     });
 
     if (!user) {
@@ -100,7 +100,7 @@ export class StripeService {
 
     // Find the user by providerId
     const user = await this.prisma.user.findUnique({
-      where: { providerId },
+      where: { id: providerId },
     });
 
     if (!user) {
