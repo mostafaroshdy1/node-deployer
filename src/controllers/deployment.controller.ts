@@ -28,11 +28,11 @@ export class DeploymentController {
   @UseGuards(JwtAuthGuard)
   async createContainer(
     @Body('repoId') repoId: string,
-    @Body('tierId')  tierId: string,
+    @Body('tierId') tierId: string,
     @Req() guardReq: CustomRequest,
   ) {
     try {
-      console.log('Body', repoId, tierId);
+      // console.log('Body', repoId, tierId);
       const { userId } = guardReq;
       const container = await this.deploymentService.deploy(
         repoId,
@@ -118,5 +118,4 @@ export class DeploymentController {
     const logs = await this.containerService.getContainerLogs(containerId);
     return JSON.parse(logs);
   }
-
 }

@@ -70,6 +70,7 @@ export class RepoService {
   }> {
     const reposPath = path.join(__dirname, '../../../../repos/');
     if (!repo || !repo.url) {
+      console.log('gheeeeeeeeeeeeeeeeeeeeeeeeeeeee', repo);
       throw new BadRequestException('Repo not found');
     }
     const repoUrl = insertStringInURL(

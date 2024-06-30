@@ -11,7 +11,8 @@ export class EnvironmentService {
     userId: string,
   ) {
     console.log('User ID in service:', userId);
-    const { repoId, name, url, event, variables, nodeVersion } = createEnvVariablesDto;
+    let { repoId, name, url, event, variables, nodeVersion } =
+      createEnvVariablesDto;
 
     const envVariables = JSON.stringify(
       variables.reduce((acc, variable) => {
@@ -26,6 +27,7 @@ export class EnvironmentService {
         userId,
       },
     });
+    url = url || existingRepo.url;
 
     if (existingRepo) {
       const updatedRepo = await this.prisma.repo.update({
@@ -75,7 +77,7 @@ export class EnvironmentService {
         name: existingRepo.name,
         url: existingRepo.url,
         event: existingRepo.event,
-        variables: Object.keys(variables).map(key => ({
+        variables: Object.keys(variables).map((key) => ({
           name: key,
           value: variables[key],
         })),

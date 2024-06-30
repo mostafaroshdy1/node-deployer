@@ -51,12 +51,14 @@ export class DeploymentService implements Observer {
     tierId: string,
   ): Promise<Container> {
     let repo: Repo, user: User, tier: Tier;
+    // console.log('heeeeeeeeeeeeeeeeeeeeeee', repoId);
     try {
       [repo, user, tier] = await Promise.all([
         this.repoService.findById(repoId),
         this.userService.findById(userId),
         this.tierService.findById(tierId),
       ]);
+      console.log(repo);
     } catch (error) {
       console.error(error);
       throw new BadRequestException('Invalid repo or user or tier');

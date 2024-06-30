@@ -17,11 +17,7 @@ import { CustomRequest } from '../interfaces/custom-request.interface';
 @Controller('environment')
 @UseGuards(JwtAuthGuard)
 export class EnvironmentController {
-  constructor(
-    private readonly environmentService: EnvironmentService,
-    private readonly deploymentService: DeploymentService,
-
-  ) {}
+  constructor(private readonly environmentService: EnvironmentService) {}
 
   @Post()
   async saveEnvironmentVariables(
