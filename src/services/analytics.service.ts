@@ -49,8 +49,8 @@ export class AnalyticsService {
 
       await this.logResourceUsage(
         containerId,
-        parseInt(cpuUsage),
-        parseInt(memoryUsage),
+        parseFloat(cpuUsage),
+        parseFloat(memoryUsage),
       );
     }
   }
@@ -67,7 +67,10 @@ export class AnalyticsService {
     const containersIds = containers.map((container) => container.id);
     this.containersLogger(containersIds);
   }
-  async getResourceUsageByInterval(containerId: string, interval: string): Promise<any[]> {
+  async getResourceUsageByInterval(
+    containerId: string,
+    interval: string,
+  ): Promise<any[]> {
     let start: string;
     let stop: string;
 
@@ -92,6 +95,10 @@ export class AnalyticsService {
         throw new Error('Invalid interval');
     }
 
-    return await this.analyticsRepository.queryResourceUsage(containerId, start, stop);
+    return await this.analyticsRepository.queryResourceUsage(
+      containerId,
+      start,
+      stop,
+    );
   }
 }
