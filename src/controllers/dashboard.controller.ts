@@ -59,6 +59,7 @@ export class DashboardController {
   async getUserRepo(@Req() guardReq: CustomRequest, @Res() res: Response) {
     try {
       const result = await this.repoService.findAll();
+      console.log(result);
       const userId = guardReq.userId;
       const userRepo = result.filter((user) => user.userId === userId);
       const repoUrl = userRepo.map((repo) => repo.url);
@@ -85,7 +86,8 @@ export class DashboardController {
         provider,
         accessToken,
         repoId,
-        process.env.WEBHOOKURL,
+        // process.env.WEBHOOKURL,
+        webhookUrl
       );
       return res.json(result);
     } catch (error) {
