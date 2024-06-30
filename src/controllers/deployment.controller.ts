@@ -27,20 +27,19 @@ export class DeploymentController {
   @Post('container')
   @UseGuards(JwtAuthGuard)
   async createContainer(
-    @Body()
-    body: {
-      repoId: string;
-      tierId: string;
-    },
+    @Body('repoId') repoId: string,
+    @Body('tierId')  tierId: string,
     @Req() guardReq: CustomRequest,
   ) {
     try {
+      console.log('Body', repoId, tierId);
       const { userId } = guardReq;
       const container = await this.deploymentService.deploy(
-        body.repoId,
+        repoId,
         userId,
-        body.tierId,
+        tierId,
       );
+      
       const ipAddress = container.ip + ':' + container.port;
       return { ipAddress };
     } catch (error) {
