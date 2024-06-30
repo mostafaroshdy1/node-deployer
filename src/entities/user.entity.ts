@@ -25,8 +25,14 @@ export class UserEntity implements User {
   @ApiProperty()
   accessToken: string;
 
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty()
+  balance: number;
+
   @Exclude()
-  repos: any[];
+  repos?: any[];
 
   @Exclude()
   role: Role;
@@ -37,6 +43,6 @@ export class UserEntity implements User {
   @Exclude()
   updatedAt: Date;
 
-  @Exclude()
-  balance: number;
+  // @Exclude()
+  // balance: number;
 }

@@ -28,5 +28,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   accessToken: string;
 
+
+  @ApiProperty()
+  @IsNotEmpty()
+  refreshToken: string;
+
   // balance: number;
+
 }

@@ -83,8 +83,8 @@ export class DockerService {
     return this.runScript('create_image.sh', [path, imageName]);
   }
 
-  getFreeIpAddress(): Promise<string> {
-    return this.runScript('get_free_ip.sh', []);
+  getFreeIpAddress(reservedIps: string[]): Promise<string> {
+    return this.runScript('get_free_ip.sh', reservedIps);
   }
   stopContainer(containerId: string): Promise<string> {
     return this.runScript('stop_container.sh', [containerId]);
@@ -98,7 +98,15 @@ export class DockerService {
     return this.runScript('memory_usage.sh', [containerId]);
   }
 
-  logCpuUsage(containerId: string, cpu:string): Promise<string> {
+  logCpuUsage(containerId: string, cpu: string): Promise<string> {
     return this.runScript('cpu_usage.sh', [containerId, cpu]);
+  }
+
+  getContainerLogs(containerId: string): Promise<string> {
+    return this.runScript('get_container_logs.sh', [containerId]);
+  }
+
+  generateEnv(path: string, env: string): Promise<string> {
+    return this.runScript('generate_env.sh', [path, env]);
   }
 }

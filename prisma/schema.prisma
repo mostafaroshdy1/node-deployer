@@ -25,19 +25,20 @@ enum DockerStatus {
 }
 
 model User {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  email       String
-  name        String
-  username    String
-  provider    String
-  providerId  String        @unique
-  accessToken String
-  repos       Repo[]
-  role        Role          @default(USER)
-  balance     Float         @default(25) // 25 USD Welcome bonus
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String
+  name         String
+  username     String
+  provider     String
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  repos        Repo[]
+  role         Role     @default(USER)
+  balance      Float    @default(25)
   transactions Transaction[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([email, provider])
 }
@@ -47,9 +48,11 @@ model Repo {
   url         String       @unique
   user        User         @relation(fields: [userId], references: [id])
   userId      String       @db.ObjectId
+  name        String?
+  repoId      String       @unique
   dockerImage DockerImage?
   event       String?
-  env         String?
+  env         String       @default("{}")
   nodeVersion String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

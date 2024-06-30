@@ -14,12 +14,12 @@ export class RepoRepository implements IRepoRepository {
       },
     });
   }
-  findAllWhere(
-    where: Prisma.RepoWhereInput,
-  ): Promise<
+  findAllWhere(where: Prisma.RepoWhereInput): Promise<
     Array<
       Prisma.RepoGetPayload<{
-        include: { dockerImage: { include: { Containers: true } } };
+        include: {
+          dockerImage: { include: { Containers: { include: { tier: true } } } };
+        };
       }>
     >
   > {
@@ -28,7 +28,11 @@ export class RepoRepository implements IRepoRepository {
       include: {
         dockerImage: {
           include: {
-            Containers: true,
+            Containers: {
+              include: {
+                tier: true,
+              },
+            },
           },
         },
       },

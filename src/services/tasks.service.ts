@@ -25,7 +25,7 @@ export class TasksService implements OnModuleInit {
         : Math.ceil(this.numberOfActiveContainers / (5 * 60));
   }
 
-  @Cron(CronExpression.EVERY_SECOND)
+  // @Cron(CronExpression.EVERY_SECOND)
   async logContainersUsage() {
     try {
       await this.analyticsQueue.add('handleContainerLogging', {
