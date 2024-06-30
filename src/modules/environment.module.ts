@@ -3,9 +3,10 @@ import { EnvironmentController } from '../controllers/environment.controller';
 import { EnvironmentService } from '../services/environment.service';
 import { PrismaService } from 'src/prisma.service';
 import { RepoModule } from './repo.module';
+import { DeploymentModule } from './deployment.module';
 
 @Module({
-  imports: [RepoModule],
+  imports: [RepoModule, DeploymentModule],
   controllers: [EnvironmentController],
   providers: [EnvironmentService, PrismaService],
 })

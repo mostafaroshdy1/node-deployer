@@ -5,8 +5,11 @@ import {
   Body,
   BadRequestException,
   UseGuards,
+  Get,
+  Param,
 } from '@nestjs/common';
 import { EnvironmentService } from '../services/environment.service';
+import { DeploymentService } from '../services/deployment.service';
 import { CreateEnvVariablesDto } from '../dtos/env-variable.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CustomRequest } from '../interfaces/custom-request.interface';
@@ -14,7 +17,11 @@ import { CustomRequest } from '../interfaces/custom-request.interface';
 @Controller('environment')
 @UseGuards(JwtAuthGuard)
 export class EnvironmentController {
-  constructor(private readonly environmentService: EnvironmentService) {}
+  constructor(
+    private readonly environmentService: EnvironmentService,
+    private readonly deploymentService: DeploymentService,
+
+  ) {}
 
   @Post()
   async saveEnvironmentVariables(
@@ -35,5 +42,18 @@ export class EnvironmentController {
       createEnvVariablesDto,
       userId,
     );
+  }
+
+  @Get(':repoId')
+  async getEnvironmentVariables(
+    @Param('repoId') repoId: string,
+    @Req() req: CustomRequest,
+  ) {
+    const userId = req.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in the request.');
+    }
+
+    return this.environmentService.getEnvironmentVariables(repoId, userId);
   }
 }

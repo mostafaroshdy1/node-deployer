@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateEnvVariablesDto } from '../dtos/env-variable.dto';
+
 @Injectable()
 export class EnvironmentService {
   constructor(private prisma: PrismaService) {}
@@ -19,7 +20,7 @@ export class EnvironmentService {
       }, {}),
     );
 
-    const existingRepo = await this.prisma.repo.findUnique({
+    const existingRepo = await this.prisma.repo.findFirst({
       where: {
         repoId,
         userId,
@@ -29,7 +30,7 @@ export class EnvironmentService {
     if (existingRepo) {
       const updatedRepo = await this.prisma.repo.update({
         where: {
-          repoId,
+          id: existingRepo.id,
         },
         data: {
           name,
@@ -57,5 +58,31 @@ export class EnvironmentService {
       });
       return newRepo;
     }
+  }
+
+  async getEnvironmentVariables(repoId: string, userId: string) {
+    const existingRepo = await this.prisma.repo.findFirst({
+      where: {
+        repoId,
+        userId,
+      },
+    });
+
+    if (existingRepo) {
+      const variables = JSON.parse(existingRepo.env);
+      return {
+        repoId: existingRepo.repoId,
+        name: existingRepo.name,
+        url: existingRepo.url,
+        event: existingRepo.event,
+        variables: Object.keys(variables).map(key => ({
+          name: key,
+          value: variables[key],
+        })),
+        nodeVersion: existingRepo.nodeVersion,
+      };
+    }
+
+    return null;
   }
 }
