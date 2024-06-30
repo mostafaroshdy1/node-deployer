@@ -14,6 +14,7 @@ memory_usage=$(docker stats --no-stream --format "{{.MemUsage}}" $container_id |
 memory_value=$(echo $memory_usage | grep -oP '^[0-9.]+')
 memory_unit=$(echo $memory_usage | grep -oP '[a-zA-Z]+')
 
+
 # Convert memory usage to MB
 case $memory_unit in
     "GiB")
@@ -24,6 +25,9 @@ case $memory_unit in
         ;;
     "KiB")
         memory_mb=$(echo "scale=2; $memory_value / 1024" | bc)
+        ;;
+    "B")
+        memory_mb=$memory_value
         ;;
     *)
         echo "Unknown memory unit: $memory_unit"

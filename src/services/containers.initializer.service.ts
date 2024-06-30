@@ -12,7 +12,7 @@ export class ContainersInitializerService implements OnModuleInit {
       await this.containerService.getAllActiveContainerIds();
     for (let i = 0; i < this.activeContainersIds.length; i++) {
       const containerId = this.activeContainersIds[i];
-      await this.containerService.resumeContainer(containerId);
+      // await this.containerService.resumeContainer(containerId);
     }
   }
 }

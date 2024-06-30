@@ -29,7 +29,7 @@ export class DockerController {
   async getDockerContainerById(@Param('id') id: string) {
     try {
       const container = await this.dockerService.getContainerById(id);
-      return { container };
+      return container;
     } catch (error) {
       return { error: `Failed to fetch Docker container with ID ${id}` };
     }
