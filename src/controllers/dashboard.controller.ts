@@ -115,9 +115,9 @@ export class DashboardController {
     @Res() res: Response,
   ) {
     try {
-      const gitRepo = await this.repoService.findById(repoId);
+      // const gitRepo = await this.repoService.findById(repoId);
       const commitData = await this.dashboardService.getCommitData(
-        gitRepo.repoId,
+        repoId,
       );
       return res.json(commitData);
     } catch (error) {
