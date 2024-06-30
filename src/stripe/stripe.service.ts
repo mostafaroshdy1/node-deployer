@@ -2,12 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { CreateStripeDto } from './dto/create-stripe.dto';
 import { PrismaService } from 'src/prisma.service';
+import { UserService } from 'src/services/user.service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 @Injectable()
 export class StripeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   async createCheckoutSession(createStripeDto: CreateStripeDto) {
     console.log('Success');
@@ -65,7 +69,7 @@ export class StripeService {
       event = stripe.webhooks.constructEvent(
         req.body,
         sig,
-        process.env.STRIPE_WEBHOOK_SECRET
+        process.env.STRIPE_WEBHOOK_SECRET,
       );
     } catch (err) {
       throw new NotFoundException(`Webhook Error: ${err.message}`);
@@ -74,28 +78,31 @@ export class StripeService {
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
-        await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+        await this.handleCheckoutSessionCompleted(
+          event.data.object as Stripe.Checkout.Session,
+        );
         break;
       case 'charge.succeeded':
         await this.handleChargeSucceeded(event.data.object as Stripe.Charge);
         break;
       case 'payment_intent.succeeded':
-        await this.handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        await this.handlePaymentIntentSucceeded(
+          event.data.object as Stripe.PaymentIntent,
+        );
         break;
       case 'payment_intent.created':
-        console.log('Payment intent created event received');
         break;
       case 'charge.updated':
-        console.log('Charge updated event received');
         break;
       default:
-        console.log(`Unhandled event type ${event.type}`);
     }
 
     return { received: true };
   }
 
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  private async handleCheckoutSessionCompleted(
+    session: Stripe.Checkout.Session,
+  ) {
     const providerId = session.metadata.providerId;
 
     // Find the user by providerId
@@ -119,12 +126,19 @@ export class StripeService {
   }
 
   private async handleChargeSucceeded(charge: Stripe.Charge) {
-    console.log('Charge succeeded:', charge);
-    // Implement any additional logic needed for charge.succeeded events
+    const user = await this.userService.findWhere({
+      email: charge.billing_details.email,
+    });
+    await this.userService.update(user.id, {
+      balance: {
+        increment: charge.amount / 100,
+      },
+    });
   }
 
-  private async handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-    console.log('Payment intent succeeded:', paymentIntent);
+  private async handlePaymentIntentSucceeded(
+    paymentIntent: Stripe.PaymentIntent,
+  ) {
     // Implement any additional logic needed for payment_intent.succeeded events
   }
 }

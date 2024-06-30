@@ -1,8 +1,15 @@
-import { Controller, Post, Body,Req, Res  ,ValidationPipe, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Res,
+  ValidationPipe,
+  Get,
+} from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { CreateStripeDto } from './dto/create-stripe.dto';
 import { Request, Response } from 'express';
-
 
 @Controller('payment')
 export class StripeController {
@@ -10,7 +17,9 @@ export class StripeController {
 
   @Post('stripe')
   async createCheckoutSession(@Body() createStripeDto: CreateStripeDto) {
-    const paymentUrl = (await this.stripeService.createCheckoutSession(createStripeDto)).url;
+    const paymentUrl = (
+      await this.stripeService.createCheckoutSession(createStripeDto)
+    ).url;
     return paymentUrl;
   }
 
@@ -26,12 +35,12 @@ export class StripeController {
   }
 
   @Get('/success')
-  getSuccess(@Req() req: Request, @Res() res: Response){
-    return res.status(200).json({msg:'Success'});
+  getSuccess(@Req() req: Request, @Res() res: Response) {
+    return res.status(200).json({ msg: 'Success' });
   }
 
   @Get('/cancel')
-  getCancel(@Req() req: Request, @Res() res: Response){
-    return res.status(200).json({msg:'Cancel'});
+  getCancel(@Req() req: Request, @Res() res: Response) {
+    return res.status(200).json({ msg: 'Cancel' });
   }
 }
