@@ -28,6 +28,9 @@ export class UserEntity implements User {
   @ApiProperty()
   refreshToken: string;
 
+  @ApiProperty()
+  balance: number;
+
   @Exclude()
   repos?: any[];
 
@@ -40,6 +43,6 @@ export class UserEntity implements User {
   @Exclude()
   updatedAt: Date;
 
-  @Exclude()
-  balance: number;
+  // @Exclude()
+  // balance: number;
 }

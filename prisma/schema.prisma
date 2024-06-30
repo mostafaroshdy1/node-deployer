@@ -36,6 +36,7 @@ model User {
   repos        Repo[]
   role         Role     @default(USER)
   balance      Float    @default(25)
+  transactions Transaction[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -88,4 +89,24 @@ model Tier {
   Container Container[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model Transaction {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  user        User             @relation(fields: [userId], references: [id])
+  userId      String           @db.ObjectId
+  amount      Float
+  type        TransactionType
+  description String?
+  urlSuccess  String?
+  urlCancel   String?
+  email       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now())
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  STRIPE
 }
