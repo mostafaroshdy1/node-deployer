@@ -39,9 +39,8 @@ export class DeploymentController {
         userId,
         tierId,
       );
-      
       const ipAddress = container.ip + ':' + container.port;
-      return { ipAddress };
+      return { ipAddress, containerId: container.id };
     } catch (error) {
       console.error(error);
       throw new BadRequestException(
