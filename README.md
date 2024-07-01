@@ -159,11 +159,6 @@ WeBuild is a sass product designed to deliver a seamless project deployment expe
    cd node-deployer
    ```
 
-## Additional Information
-
-- **Data Validation and Sanitization:** Input data is rigorously validated and sanitized to prevent security vulnerabilities such as SQL injection and cross-site scripting (XSS) attacks, ensuring robust data integrity and user security.
-- **Robust Error Handling:** Comprehensive error handling mechanisms are implemented to provide informative error messages and ensure a smooth user experience, enhancing user satisfaction and trust.
-
 ## Resources
 
 - [NestJS Documentation](https://docs.nestjs.com/)
