@@ -2,10 +2,6 @@
 
 Welcome to the WeBuild Backend repository. This README serves as a comprehensive guide to the project's structure, setup instructions, features, API endpoints, additional information, resources, and contributions.
 
-**This project is live and deployed! Access it [here](https://scentence.vercel.app/).**
-
-**The frontend repository is [here](https://github.com/mostafaroshdy1/scentence-frontend).**
-
 ## Project Overview
 
 WeBuild is a sass product designed to deliver a seamless project deployment experience. The backend repository houses the server-side code, responsible for handling authentication, user management , deployment service and other essential functionalities.
@@ -184,6 +180,6 @@ WeBuild is a sass product designed to deliver a seamless project deployment expe
 
 Explore a comprehensive demonstration of WeBuild in action via the following video:
 
-[![WeBuild Demo](https://img.youtube.com/vi/FfvFiVY5YCY/0.jpg)](https://www.youtube.com/watch?v=FfvFiVY5YCY)
+
 
 Feel free to contribute to this project by submitting pull requests or opening issues for any bugs or feature requests.
