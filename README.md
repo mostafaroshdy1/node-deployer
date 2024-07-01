@@ -174,6 +174,7 @@ WeBuild is a sass product designed to deliver a seamless project deployment expe
 ## Video Demo
 
 Explore a comprehensive demonstration of WeBuild in action via the following video:
+
 [![WeBuild Demo](https://img.youtube.com/vi/UXnWZMVCsUc/0.jpg)](https://youtu.be/UXnWZMVCsUc)
 
 
